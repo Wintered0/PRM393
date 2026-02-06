@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "521233549696",
+    "project_id": "cafeshopmanagement",
+    "storage_bucket": "cafeshopmanagement.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521233549696:android:ef8a310c1bd3cd86fb1965",
+        "android_client_info": {
+          "package_name": "com.example.cafeshop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521233549696-v6efslajp8d6u6gangrtdgue3lc7gki1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtCWcmZidFeYARx6TC2-mdCZxN0PWudlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521233549696-v6efslajp8d6u6gangrtdgue3lc7gki1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "521233549696-066v7orbg8k4rpfd972eltlhj2f3un34.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cafeshop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
