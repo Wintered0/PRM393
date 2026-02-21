@@ -16,12 +16,32 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 # cài đặt dependency
-# firebase_core: ^3.0.0
-# cloud_firestore: ^5.0.0
-# crypto: ^3.0.3
+# dependencies (Cập nhật ngày 21/2/2026):
+  
+  
+  # Cài đặt: Firebase packages
+  # firebase_core: ^3.0.0
+  # cloud_firestore: ^5.0.0
+  # crypto: ^3.0.3
+  # flutter_dotenv: ^5.2.1
+  # mailer: ^6.4.1
+  # http: ^1.2.2
+
+  # Icons
+  # cupertino_icons: ^1.0.8
+
+# dev_dependencies:
+  # flutter_test:sdk: flutter
+    
+  # flutter_lints: ^6.0.0
+
+# flutter:
+  # uses-material-design: true
+ # assets: - .env
+    
 # sau đó chạy lệnh flutter pub get (Thực ra ko cần vì nó tự pub rồi)
 
-# Thêm đường link này vào phần enviroment --> Path --> Add
+# NGOÀI RA: Thêm đường link này vào phần enviroment --> Path --> Add
 # C:\Users\HP\AppData\Local\Pub\Cache\bin
 
 # sau đó chạy lệnh
