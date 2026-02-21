@@ -18,7 +18,8 @@ samples, guidance on mobile development, and a full API reference.
 # cài đặt dependency
 # dependencies (Cập nhật ngày 21/2/2026):
   
-  # Firebase packages
+  
+  # Cài đặt: Firebase packages
   # firebase_core: ^3.0.0
   # cloud_firestore: ^5.0.0
   # crypto: ^3.0.3
