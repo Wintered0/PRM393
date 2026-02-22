@@ -1,4 +1,4 @@
-import 'package:cafeshop/screens/home_page.dart';
+import 'package:cafeshop/screens/customer/homepage_customer.dart';
 import 'package:cafeshop/screens/auth/login_screen.dart';
 import 'package:cafeshop/screens/auth/register_screen.dart';
 import 'package:cafeshop/screens/splash_screen.dart';
@@ -32,7 +32,10 @@ class CafeShopApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(), // thêm dòng này
         '/register': (context) => const RegisterScreen(),
-        '/home': (context) => const HomePage(),
+        '/home': (context) => const HomePage(
+          userId: '',
+          userData: <String, dynamic>{'fullname': 'Người dùng'},
+        ),
       },
     );
   }

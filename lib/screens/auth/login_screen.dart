@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 
 import '../../widgets/feedback_overlay.dart';
 import 'forgot_password_email_screen.dart';
-import '../home_page.dart';
+import '../customer/homepage_customer.dart';
+import '../manager/homepage_manager.dart';
+import '../staff/homepage_staff.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,6 +27,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String _hashPassword(String password) {
     return sha256.convert(utf8.encode(password)).toString();
+  }
+
+  String _roleLabel(String role) {
+    switch (role) {
+      case 'manager':
+        return 'Manager';
+      case 'staff':
+        return 'Staff';
+      default:
+        return 'Customer';
+    }
   }
 
   @override
@@ -88,9 +101,25 @@ class _LoginScreenState extends State<LoginScreen> {
           message: 'Đăng nhập thành công!',
         );
         if (!mounted) return;
+
+        final userDoc = snapshot.docs.first;
+        final userId = userDoc.id;
+        final role = (user['role'] as String? ?? 'user').toLowerCase().trim();
+        final roleLabel = _roleLabel(role);
+
+        final nextScreen = switch (role) {
+          'manager' => HomepageManager(userId: userId, userData: user),
+          'staff' => HomepageStaff(userId: userId, userData: user),
+          _ => HomePage(
+            userId: userId,
+            userData: user,
+            roleLabel: roleLabel,
+          ),
+        };
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+          MaterialPageRoute(builder: (_) => nextScreen),
         );
       } else {
         await FeedbackOverlay.showPopup(
