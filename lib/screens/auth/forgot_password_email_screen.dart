@@ -23,12 +23,6 @@ class _ForgotPasswordEmailScreenState extends State<ForgotPasswordEmailScreen> {
     super.dispose();
   }
 
-  String _maskEmail(String email) {
-    final parts = email.split('@');
-    if (parts.length != 2) return email;
-    return '*****@${parts[1]}';
-  }
-
   Future<void> _sendOtp() async {
     if (isLoading) return;
 
@@ -76,7 +70,7 @@ class _ForgotPasswordEmailScreenState extends State<ForgotPasswordEmailScreen> {
       await FeedbackOverlay.showPopup(
         context,
         isSuccess: true,
-        message: 'Đã gửi mã OTP đến ${_maskEmail(email)}',
+        message: 'Đã gửi mã OTP đến $email',
       );
 
       if (!mounted) return;
