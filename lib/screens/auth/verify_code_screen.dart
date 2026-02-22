@@ -52,13 +52,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
     });
   }
 
-  String _maskEmail(String email) {
-    final parts = email.split('@');
-    if (parts.length != 2) return email;
-    final domain = parts[1];
-    return "*****@$domain";
-  }
-
   Future<void> _verifyCode() async {
     if (isLoading) return;
     final code = _codeController.text.trim();
@@ -167,7 +160,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
         child: Column(
           children: [
             Text(
-              'Chúng tôi đã gửi mail đến ${_maskEmail(widget.email)}',
+              'Chúng tôi đã gửi mail đến ${widget.email}',
               style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),

@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -18,6 +18,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _fullnameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _ageController = TextEditingController();
   final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -44,12 +45,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String _hashPassword(String password) {
     return sha256.convert(utf8.encode(password)).toString();
-  }
-
-  String _maskEmail(String email) {
-    final parts = email.split('@');
-    if (parts.length != 2) return email;
-    return '*****@${parts[1]}';
   }
 
   InputDecoration _inputDecoration(String label) {
@@ -88,6 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _fullnameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _ageController.dispose();
     _addressController.dispose();
     _passwordController.dispose();
@@ -98,16 +94,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _validateInput({
     required String fullname,
     required String email,
+    required String phone,
     required String address,
     required String password,
     required String confirm,
   }) {
-    if ([fullname, email, address, password, confirm].any((e) => e.isEmpty) ||
+    if ([fullname, email, phone, address, password, confirm].any((e) => e.isEmpty) ||
         _dob == null) {
       return 'Không được bỏ trống!';
     }
     if (!email.contains('@')) {
       return 'Email không hợp lệ!';
+    }
+    if (!RegExp(r'^\d{9,11}$').hasMatch(phone)) {
+      return 'Số điện thoại không hợp lệ!';
     }
     if (password.length < 6) {
       return 'Mật khẩu phải từ 6 ký tự trở lên!';
@@ -123,6 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final fullname = _fullnameController.text.trim();
     final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
     final address = _addressController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
@@ -130,6 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final inputError = _validateInput(
       fullname: fullname,
       email: email,
+      phone: phone,
       address: address,
       password: password,
       confirm: confirm,
@@ -164,6 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await userRef.set({
         'fullname': fullname,
         'email': email,
+        'phone': phone,
         'age': _calculateAge(_dob!),
         'dob': _dob!.toIso8601String(),
         'gender': _gender,
@@ -181,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await FeedbackOverlay.showPopup(
         context,
         isSuccess: true,
-        message: 'Đăng ký thành công. Đã gửi mã đến ${_maskEmail(email)}',
+        message: 'Đăng ký thành công. Đã gửi mã đến $email',
       );
 
       if (!mounted) return;
@@ -250,6 +253,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextField(
                         controller: _emailController,
                         decoration: _inputDecoration('Email'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        decoration: _inputDecoration('Số điện thoại'),
                       ),
                       const SizedBox(height: 12),
                       Row(
