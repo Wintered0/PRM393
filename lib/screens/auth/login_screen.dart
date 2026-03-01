@@ -187,6 +187,34 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
+      final usersRef = FirebaseFirestore.instance.collection('users');
+      final googleEmail = googleUser.email.trim();
+      final existed = await usersRef
+          .where('email', isEqualTo: googleEmail)
+          .limit(1)
+          .get();
+
+      final existedData = existed.docs.isNotEmpty ? existed.docs.first.data() : null;
+      final hasTraditionalPassword =
+          existedData != null &&
+          ((existedData['password'] as String?)?.trim().isNotEmpty ?? false);
+      final isGoogleAccount =
+          existedData != null &&
+          ((existedData['authProvider'] as String?) == 'google' ||
+              ((existedData['googleUid'] as String?)?.isNotEmpty ?? false));
+
+      if (existed.docs.isNotEmpty && (hasTraditionalPassword || !isGoogleAccount)) {
+        if (!mounted) return;
+        FeedbackOverlay.hideLoading(context);
+        setState(() => isLoading = false);
+        await FeedbackOverlay.showPopup(
+          context,
+          message:
+              'Email này đã tồn tại trong hệ thống. Vui lòng đăng nhập bằng mật khẩu.',
+        );
+        return;
+      }
+
       final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -201,25 +229,17 @@ class _LoginScreenState extends State<LoginScreen> {
         throw Exception('Không lấy được thông tin tài khoản Google.');
       }
 
-      final usersRef = FirebaseFirestore.instance.collection('users');
-      final existed = await usersRef
-          .where('email', isEqualTo: firebaseUser.email)
-          .limit(1)
-          .get();
-
       DocumentReference<Map<String, dynamic>> userRef;
-      if (existed.docs.isNotEmpty) {
-        final currentData = existed.docs.first.data();
+      if (existed.docs.isNotEmpty && isGoogleAccount) {
         userRef = existed.docs.first.reference;
-
         await userRef.update({
           'fullname':
-              (firebaseUser.displayName?.trim().isNotEmpty ?? false)
+              firebaseUser.displayName?.trim().isNotEmpty == true
                   ? firebaseUser.displayName!.trim()
-                  : currentData['fullname'],
+                  : existedData['fullname'],
           'photoUrl': firebaseUser.photoURL,
           'googleUid': firebaseUser.uid,
-          'isVerified': true,
+          'authProvider': 'google',
           'updatedAt': FieldValue.serverTimestamp(),
         });
       } else {
@@ -240,6 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'isVerified': true,
           'photoUrl': firebaseUser.photoURL,
           'googleUid': firebaseUser.uid,
+          'authProvider': 'google',
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
