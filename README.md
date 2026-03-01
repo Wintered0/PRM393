@@ -23,6 +23,7 @@ samples, guidance on mobile development, and a full API reference.
   # firebase_core: ^3.0.0
   # cloud_firestore: ^5.0.0
   # crypto: ^3.0.3
+  # google_sign_in: ^6.2.1
   # flutter_dotenv: ^5.2.1
   # mailer: ^6.4.1
   # http: ^1.2.2
@@ -41,7 +42,13 @@ samples, guidance on mobile development, and a full API reference.
     
 # sau đó chạy lệnh flutter pub get (Thực ra ko cần vì nó tự pub rồi)
 
-# NGOÀI RA: Thêm đường link này vào phần enviroment --> Path --> Add
+
+
+
+
+
+
+# NGOÀI RA(CÓ THỂ LÀM OR ko): Thêm đường link này vào phần enviroment --> Path --> Add
 # C:\Users\HP\AppData\Local\Pub\Cache\bin
 
 # sau đó chạy lệnh

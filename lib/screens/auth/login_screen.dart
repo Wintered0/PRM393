@@ -2,7 +2,10 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../widgets/feedback_overlay.dart';
 import 'forgot_password_email_screen.dart';
@@ -20,6 +23,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: <String>['email']);
   bool isLoading = false;
   bool _obscurePassword = true;
   static const _hideEmoji = '\u{1F648}';
@@ -38,6 +42,53 @@ class _LoginScreenState extends State<LoginScreen> {
       default:
         return 'Customer';
     }
+  }
+
+  void _navigateByRole({
+    required String userId,
+    required Map<String, dynamic> userData,
+  }) {
+    final role = (userData['role'] as String? ?? 'user').toLowerCase().trim();
+    final roleLabel = _roleLabel(role);
+
+    final nextScreen = switch (role) {
+      'manager' => HomepageManager(userId: userId, userData: userData),
+      'staff' => HomepageStaff(userId: userId, userData: userData),
+      _ => HomePage(userId: userId, userData: userData, roleLabel: roleLabel),
+    };
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => nextScreen),
+    );
+  }
+
+  String _googleSignInErrorMessage(Object error) {
+    if (error is PlatformException) {
+      final message = (error.message ?? '').toLowerCase();
+      final code = error.code.toLowerCase();
+
+      if (message.contains('apiexception: 10') ||
+          message.contains('developer_error') ||
+          code == 'sign_in_failed') {
+        return 'Đăng nhập Google thất bại do cấu hình Firebase Android (SHA-1/SHA-256).\n'
+            'Vui lòng thêm SHA cho app, tải lại google-services.json và chạy lại ứng dụng.';
+      }
+
+      if (code == 'network_error') {
+        return 'Không có kết nối mạng. Vui lòng thử lại.';
+      }
+
+      if (code == 'sign_in_canceled') {
+        return 'Bạn đã hủy đăng nhập Google.';
+      }
+
+      if (error.message != null && error.message!.trim().isNotEmpty) {
+        return 'Đăng nhập Google thất bại: ${error.message}';
+      }
+    }
+
+    return 'Đăng nhập Google thất bại: $error';
   }
 
   @override
@@ -104,23 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         final userDoc = snapshot.docs.first;
         final userId = userDoc.id;
-        final role = (user['role'] as String? ?? 'user').toLowerCase().trim();
-        final roleLabel = _roleLabel(role);
-
-        final nextScreen = switch (role) {
-          'manager' => HomepageManager(userId: userId, userData: user),
-          'staff' => HomepageStaff(userId: userId, userData: user),
-          _ => HomePage(
-            userId: userId,
-            userData: user,
-            roleLabel: roleLabel,
-          ),
-        };
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => nextScreen),
-        );
+        _navigateByRole(userId: userId, userData: user);
       } else {
         await FeedbackOverlay.showPopup(
           context,
@@ -132,6 +167,105 @@ class _LoginScreenState extends State<LoginScreen> {
       FeedbackOverlay.hideLoading(context);
       setState(() => isLoading = false);
       await FeedbackOverlay.showPopup(context, message: 'Lỗi: $e');
+    }
+  }
+
+  Future<void> _loginWithGoogle() async {
+    if (isLoading) return;
+
+    setState(() => isLoading = true);
+    FeedbackOverlay.showLoading(context, text: 'Đang đăng nhập với Google...');
+
+    try {
+      // Reset phiên đăng nhập cũ để tránh trạng thái cache lỗi từ Google Play Services.
+      await _googleSignIn.signOut();
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        if (!mounted) return;
+        FeedbackOverlay.hideLoading(context);
+        setState(() => isLoading = false);
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final authResult = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      final firebaseUser = authResult.user;
+      if (firebaseUser == null || firebaseUser.email == null) {
+        throw Exception('Không lấy được thông tin tài khoản Google.');
+      }
+
+      final usersRef = FirebaseFirestore.instance.collection('users');
+      final existed = await usersRef
+          .where('email', isEqualTo: firebaseUser.email)
+          .limit(1)
+          .get();
+
+      DocumentReference<Map<String, dynamic>> userRef;
+      if (existed.docs.isNotEmpty) {
+        final currentData = existed.docs.first.data();
+        userRef = existed.docs.first.reference;
+
+        await userRef.update({
+          'fullname':
+              (firebaseUser.displayName?.trim().isNotEmpty ?? false)
+                  ? firebaseUser.displayName!.trim()
+                  : currentData['fullname'],
+          'photoUrl': firebaseUser.photoURL,
+          'googleUid': firebaseUser.uid,
+          'isVerified': true,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        userRef = usersRef.doc();
+        await userRef.set({
+          'fullname':
+              firebaseUser.displayName?.trim().isNotEmpty == true
+                  ? firebaseUser.displayName!.trim()
+                  : firebaseUser.email!.split('@').first,
+          'email': firebaseUser.email,
+          'phone': firebaseUser.phoneNumber ?? '',
+          'age': null,
+          'dob': null,
+          'gender': 'Khac',
+          'password': '',
+          'address': '',
+          'role': 'user',
+          'isVerified': true,
+          'photoUrl': firebaseUser.photoURL,
+          'googleUid': firebaseUser.uid,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      final userSnapshot = await userRef.get();
+      final userData = userSnapshot.data() ?? <String, dynamic>{};
+
+      if (!mounted) return;
+      FeedbackOverlay.hideLoading(context);
+      setState(() => isLoading = false);
+      await FeedbackOverlay.showPopup(
+        context,
+        isSuccess: true,
+        message: 'Đăng nhập Google thành công!',
+      );
+      if (!mounted) return;
+      _navigateByRole(userId: userRef.id, userData: userData);
+    } catch (e) {
+      if (!mounted) return;
+      FeedbackOverlay.hideLoading(context);
+      setState(() => isLoading = false);
+      await FeedbackOverlay.showPopup(
+        context,
+        message: _googleSignInErrorMessage(e),
+      );
     }
   }
 
@@ -221,7 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const Divider(),
               const SizedBox(height: 12),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: isLoading ? null : _loginWithGoogle,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
