@@ -14,6 +14,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String _normalizeGender(dynamic value) {
+    final raw = (value?.toString() ?? '').trim().toLowerCase();
+    if (raw == 'nam') return 'Nam';
+    if (raw == 'nu' || raw == 'nữ' || raw == 'ná»¯') return 'Nu';
+    if (raw == 'khac' || raw == 'khác' || raw == 'khã¡c') return 'Khac';
+    return 'Khac';
+  }
+
   DateTime? _parseDob(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
@@ -57,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TextEditingController(text: (data['address'] as String?) ?? '');
     final dobController = TextEditingController();
     final ageController = TextEditingController();
-    String gender = (data['gender'] as String?) ?? 'Nam';
+    String gender = _normalizeGender(data['gender']);
     DateTime selectedDob = _parseDob(data['dob']) ?? DateTime(2000, 1, 1);
 
     void syncDobAndAge() {
@@ -89,8 +97,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: const InputDecoration(labelText: 'Giới tính'),
                   items: const [
                     DropdownMenuItem(value: 'Nam', child: Text('Nam')),
-                    DropdownMenuItem(value: 'Nữ', child: Text('Nữ')),
-                    DropdownMenuItem(value: 'Khác', child: Text('Khác')),
+                    DropdownMenuItem(value: 'Nu', child: Text('Nữ')),
+                    DropdownMenuItem(value: 'Khac', child: Text('Khác')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
