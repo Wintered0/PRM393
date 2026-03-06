@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
@@ -17,9 +18,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _normalizeGender(dynamic value) {
     final raw = (value?.toString() ?? '').trim().toLowerCase();
     if (raw == 'nam') return 'Nam';
-    if (raw == 'nu' || raw == 'nữ' || raw == 'ná»¯') return 'Nu';
-    if (raw == 'khac' || raw == 'khác' || raw == 'khã¡c') return 'Khac';
+    if (raw == 'nu' || raw == 'nữ') return 'Nu';
+    if (raw == 'khac' || raw == 'khác') return 'Khac';
     return 'Khac';
+  }
+
+  String _displayGender(dynamic value) {
+    final normalized = _normalizeGender(value);
+    if (normalized == 'Nam') return 'Nam';
+    if (normalized == 'Nu') return 'Nữ';
+    return 'Khác';
   }
 
   DateTime? _parseDob(dynamic value) {
@@ -79,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setLocalState) => AlertDialog(
-          title: const Text('Chỉnh sửa Profile'),
+          title: const Text('Chỉnh sửa hồ sơ'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -90,6 +98,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 TextField(
                   controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(11),
+                  ],
                   decoration: const InputDecoration(labelText: 'Số điện thoại'),
                 ),
                 DropdownButtonFormField<String>(
@@ -157,9 +170,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final fullname = fullnameController.text.trim();
                 final phone = phoneController.text.trim();
                 final address = addressController.text.trim();
+
                 if (fullname.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Họ và tên không được để trống.')),
+                  );
+                  return;
+                }
+
+                if (phone.isNotEmpty && !RegExp(r'^\d{1,11}$').hasMatch(phone)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Số điện thoại chỉ được nhập tối đa 11 chữ số.'),
+                    ),
                   );
                   return;
                 }
@@ -180,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.pop(ctx);
                 if (!mounted) return;
                 ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(content: Text('Cập nhật profile thành công.')),
+                  const SnackBar(content: Text('Cập nhật hồ sơ thành công.')),
                 );
               },
               child: const Text('Lưu'),
@@ -194,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text('Hồ sơ')),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream:
             FirebaseFirestore.instance.collection('users').doc(widget.userId).snapshots(),
@@ -211,7 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final items = <MapEntry<String, dynamic>>[
             MapEntry('Họ và tên', data['fullname']),
             MapEntry('Số điện thoại', data['phone']),
-            MapEntry('Giới tính', data['gender']),
+            MapEntry('Giới tính', _displayGender(data['gender'])),
             MapEntry('Tuổi', data['age']),
             MapEntry('Ngày sinh', _formatDob(data['dob'])),
             MapEntry('Địa chỉ', data['address']),
@@ -252,3 +275,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+

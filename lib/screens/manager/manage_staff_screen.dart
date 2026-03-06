@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ManageStaffScreen extends StatefulWidget {
   const ManageStaffScreen({super.key});
@@ -98,6 +99,11 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                 ),
                 TextField(
                   controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(11),
+                  ],
                   decoration: const InputDecoration(labelText: 'Số điện thoại'),
                 ),
                 TextField(
@@ -182,6 +188,13 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                 if (password.length < 6) {
                   messenger.showSnackBar(
                     const SnackBar(content: Text('Mật khẩu phải từ 6 ký tự trở lên.')),
+                  );
+                  return;
+                }
+
+                if (phone.isNotEmpty && !RegExp(r'^\d{1,11}$').hasMatch(phone)) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Số điện thoại chỉ được nhập tối đa 11 chữ số.')),
                   );
                   return;
                 }
@@ -313,3 +326,4 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
     );
   }
 }
+
