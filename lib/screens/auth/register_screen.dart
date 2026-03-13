@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../services/email_otp_service.dart';
 import '../../widgets/feedback_overlay.dart';
@@ -258,6 +259,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextField(
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(11),
+                        ],
                         decoration: _inputDecoration('Số điện thoại'),
                       ),
                       const SizedBox(height: 12),

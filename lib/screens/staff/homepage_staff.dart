@@ -19,6 +19,7 @@ class HomepageStaff extends StatelessWidget {
       userId: userId,
       userData: userData,
       roleLabel: 'Staff',
+      showCheckInCheckOut: true,
       body: const Center(
         child: Text(
           'Màn hình Staff',

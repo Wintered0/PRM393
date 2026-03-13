@@ -20,6 +20,7 @@ class HomepageManager extends StatelessWidget {
       userData: userData,
       roleLabel: 'Manager',
       showManageStaff: true,
+      showCheckInCheckOut: true,
       body: const Center(
         child: Text(
           'Màn hình Manager',
