@@ -34,6 +34,30 @@ class RoleShell extends StatelessWidget {
     return (userData['fullname'] as String? ?? 'Ng\u01b0\u1eddi d\u00f9ng').trim();
   }
 
+  String _resolveRoleKey(Map<String, dynamic>? liveData) {
+    final liveRole = (liveData?['role'] as String?)?.toLowerCase().trim();
+    if (liveRole != null && liveRole.isNotEmpty) return liveRole;
+    final fallback = (userData['role'] as String? ?? '').toLowerCase().trim();
+    if (fallback.isNotEmpty) return fallback;
+    return 'customer';
+  }
+
+  Future<void> _navigateOrToast(
+    BuildContext context,
+    String route,
+  ) async {
+    if (route.trim().isEmpty) {
+      await FeedbackOverlay.showPopup(
+        context,
+        message: 'T\u00ednh n\u0103ng \u0111ang c\u1eadp nh\u1eadt.',
+        duration: const Duration(milliseconds: 1400),
+      );
+      return;
+    }
+    if (!context.mounted) return;
+    Navigator.pushNamed(context, route);
+  }
+
   Future<void> _handleLogout(BuildContext context) async {
     final shouldLogout = await showDialog<bool>(
       context: context,
@@ -73,6 +97,8 @@ class RoleShell extends StatelessWidget {
       builder: (context, snapshot) {
         final liveData = snapshot.data?.data();
         final fullName = _resolveFullName(liveData);
+        final rawRoleKey = _resolveRoleKey(liveData);
+        final roleKey = rawRoleKey == 'user' ? 'customer' : rawRoleKey;
 
         return Scaffold(
           appBar: AppBar(
@@ -108,69 +134,277 @@ class RoleShell extends StatelessWidget {
           ),
           drawer: Drawer(
             child: SafeArea(
-              child: Padding(
+              child: ListView(
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _DrawerGreetingHeader(fullName: fullName),
-                    const SizedBox(height: 24),
-                    if (showCheckInCheckOut)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.check_circle_outline),
-                        title: const Text('Check-in/Check-out'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CheckInCheckOutScreen(
-                                userId: userId,
-                                userData: liveData ?? userData,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                children: [
+                  _DrawerGreetingHeader(fullName: fullName),
+                  const SizedBox(height: 24),
+                  if (showCheckInCheckOut && roleKey == 'staff')
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.person_outline),
-                      title: const Text('Profile'),
+                      leading: const Icon(Icons.check_circle_outline),
+                      title: const Text('Check-in/Check-out'),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ProfileScreen(
+                            builder: (_) => CheckInCheckOutScreen(
                               userId: userId,
+                              userData: liveData ?? userData,
                             ),
                           ),
                         );
                       },
                     ),
-                    if (showManageStaff)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.group_outlined),
-                        title: const Text('Qu\u1ea3n l\u00fd Staff'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ManageStaffScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () => _handleLogout(context),
-                      child: const Text('\u0110\u0103ng xu\u1ea5t'),
+                  if (roleKey == 'staff') ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.restaurant_menu),
+                      title: const Text('Menu'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.card_giftcard),
+                      title: const Text('Voucher/L\u1ecbch s\u1eed d\u00f9ng'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.receipt_long),
+                      title: const Text('Danh s\u00e1ch \u0111\u01a1n ch\u1edd'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.history),
+                      title: const Text('L\u1ecbch s\u1eed \u0111\u01a1n'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.inventory_2_outlined),
+                      title: const Text('Nh\u1eadp/Xu\u1ea5t kho'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.file_download_outlined),
+                      title: const Text('Xu\u1ea5t file b\u00e1o c\u00e1o'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
                     ),
                   ],
-                ),
+                  if (roleKey == 'customer') ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.restaurant_menu),
+                      title: const Text('Menu'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.history),
+                      title: const Text('L\u1ecbch s\u1eed \u0111\u1eb7t \u0111\u01a1n'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.card_giftcard),
+                      title: const Text('Voucher c\u1ee7a t\u00f4i'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                  ],
+                  if (roleKey == 'manager') ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.home_outlined),
+                      title: const Text('Home'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.inventory_2_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd s\u1ea3n ph\u1ea9m'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.card_giftcard),
+                      title: const Text('Qu\u1ea3n l\u00fd Voucher'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.manage_accounts_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd t\u00e0i kho\u1ea3n'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        leading: const Icon(Icons.person_outline, size: 20),
+                        title: const Text('T\u00e0i kho\u1ea3n Staff'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await _navigateOrToast(context, '');
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        leading: const Icon(Icons.person_outline, size: 20),
+                        title: const Text('T\u00e0i kho\u1ea3n Customer'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await _navigateOrToast(context, '');
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.receipt_long),
+                      title: const Text('Danh s\u00e1ch \u0111\u01a1n h\u00e0ng'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.warehouse_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd kho'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.event_note_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd l\u1ecbch l\u00e0m vi\u1ec7c'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.assignment_outlined),
+                      title: const Text('Request Absent'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        leading: const Icon(Icons.event_available, size: 20),
+                        title: const Text('L\u1ecbch l\u00e0m vi\u1ec7c'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await _navigateOrToast(context, '');
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        leading: const Icon(Icons.add_circle_outline, size: 20),
+                        title: const Text('T\u1ea1o m\u1edbi'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await _navigateOrToast(context, '');
+                        },
+                      ),
+                    ),
+                  ],
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.person_outline),
+                    title: const Text('Profile'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProfileScreen(
+                            userId: userId,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  if (showManageStaff)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.group_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd Staff'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ManageStaffScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => _handleLogout(context),
+                    child: const Text('\u0110\u0103ng xu\u1ea5t'),
+                  ),
+                ],
               ),
             ),
           ),
