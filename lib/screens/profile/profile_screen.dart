@@ -1,6 +1,11 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../widgets/feedback_overlay.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
@@ -15,6 +20,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final ImagePicker _imagePicker = ImagePicker();
+
   String _normalizeGender(dynamic value) {
     final raw = (value?.toString() ?? '').trim().toLowerCase();
     if (raw == 'nam') return 'Nam';
@@ -60,6 +67,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (value == null) return '-';
     if (value is String && value.trim().isEmpty) return '-';
     return value.toString();
+  }
+
+  Uint8List? _safeDecodeBase64(dynamic value) {
+    if (value is! String || value.trim().isEmpty) return null;
+    try {
+      return base64Decode(value);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _updateReferencePhoto() async {
+    final image = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 60,
+      maxWidth: 1024,
+    );
+    if (image == null || !mounted) return;
+
+    FeedbackOverlay.showLoading(context, text: 'Đang cập nhật ảnh gốc...');
+    try {
+      final bytes = await image.readAsBytes();
+      final encoded = base64Encode(bytes);
+
+      await FirebaseFirestore.instance.collection('users').doc(widget.userId).update({
+        'referencePhotoBase64': encoded,
+        'referencePhotoUpdatedAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+      FeedbackOverlay.hideLoading(context);
+      await FeedbackOverlay.showPopup(
+        context,
+        isSuccess: true,
+        message: 'Cập nhật ảnh gốc thành công.',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      FeedbackOverlay.hideLoading(context);
+      await FeedbackOverlay.showPopup(context, message: 'Lỗi cập nhật ảnh gốc: $e');
+    }
   }
 
   Future<void> _showEditDialog(Map<String, dynamic> data) async {
@@ -231,6 +279,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           final data = snapshot.data!.data() ?? <String, dynamic>{};
+          final referenceBytes = _safeDecodeBase64(data['referencePhotoBase64']);
+          final photoUrl = (data['photoUrl'] as String?)?.trim() ?? '';
           final items = <MapEntry<String, dynamic>>[
             MapEntry('Họ và tên', data['fullname']),
             MapEntry('Số điện thoại', data['phone']),
@@ -242,6 +292,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           return Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                          width: 140,
+                          height: 140,
+                          child: referenceBytes != null
+                              ? Image.memory(referenceBytes, fit: BoxFit.cover)
+                              : (photoUrl.isNotEmpty
+                                  ? Image.network(photoUrl, fit: BoxFit.cover)
+                                  : const ColoredBox(
+                                      color: Color(0xFFF2F2F2),
+                                      child: Icon(
+                                        Icons.person_outline,
+                                        size: 48,
+                                        color: Colors.black45,
+                                      ),
+                                    )),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: _updateReferencePhoto,
+                        icon: const Icon(Icons.camera_alt_outlined),
+                        label: const Text('Cập nhật ảnh gốc'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: Align(
@@ -275,4 +365,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
 

@@ -20,6 +20,8 @@ dependencies:
   flutter_dotenv: ^5.1.0
   http: ^1.2.2
   mailer: ^6.1.2
+  image_picker: ^1.2.0
+  image: ^4.5.4
 
   # Icons
   cupertino_icons: ^1.0.8
