@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/attendance/checkin_checkout_screen.dart';
 import '../screens/manager/manage_staff_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import 'feedback_overlay.dart';
@@ -11,6 +14,7 @@ class RoleShell extends StatelessWidget {
   final Map<String, dynamic> userData;
   final String roleLabel;
   final bool showManageStaff;
+  final bool showCheckInCheckOut;
   final Widget body;
 
   const RoleShell({
@@ -20,6 +24,7 @@ class RoleShell extends StatelessWidget {
     required this.userData,
     required this.roleLabel,
     this.showManageStaff = false,
+    this.showCheckInCheckOut = false,
     required this.body,
   });
 
@@ -108,19 +113,26 @@ class RoleShell extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      fullName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Role: $roleLabel',
-                      style: const TextStyle(fontSize: 14, color: Colors.black54),
-                    ),
+                    _DrawerGreetingHeader(fullName: fullName),
                     const SizedBox(height: 24),
+                    if (showCheckInCheckOut)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.check_circle_outline),
+                        title: const Text('Check-in/Check-out'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CheckInCheckOutScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.person_outline),
@@ -165,6 +177,69 @@ class RoleShell extends StatelessWidget {
           body: body,
         );
       },
+    );
+  }
+}
+
+class _DrawerGreetingHeader extends StatefulWidget {
+  final String fullName;
+
+  const _DrawerGreetingHeader({required this.fullName});
+
+  @override
+  State<_DrawerGreetingHeader> createState() => _DrawerGreetingHeaderState();
+}
+
+class _DrawerGreetingHeaderState extends State<_DrawerGreetingHeader> {
+  DateTime _now = DateTime.now();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _greeting(DateTime dt) {
+    if (dt.hour < 12) return 'Good morning';
+    if (dt.hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  String _formatClock(DateTime dt) {
+    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final second = dt.second.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$hour12:$minute:$second $period';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${_greeting(_now)} ${widget.fullName}',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _formatClock(_now),
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+      ],
     );
   }
 }
