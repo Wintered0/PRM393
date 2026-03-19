@@ -4,6 +4,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/attendance/checkin_checkout_screen.dart';
+import '../screens/customer/menu_screen.dart';
+import '../screens/customer/order_history_screen.dart';
+import '../screens/staff/voucher_screen.dart';
+import '../screens/staff/pending_orders_screen.dart';
+import '../screens/staff/order_history_staff_screen.dart';
+import '../screens/staff/inventory_status_screen.dart';
+import '../screens/manager/product_management_screen.dart';
+import '../screens/manager/customer_accounts_screen.dart';
+import '../screens/manager/staff_accounts_screen.dart';
+import '../screens/manager/order_list_screen.dart';
+import '../screens/manager/inventory_status_manager_screen.dart';
+import '../screens/manager/work_schedule_screen.dart';
+import '../screens/manager/create_work_schedule_screen.dart';
+import '../screens/manager/home_manager_screen.dart';
 import '../screens/manager/manage_staff_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import 'feedback_overlay.dart';
@@ -15,6 +29,20 @@ class RoleShell extends StatelessWidget {
   final String roleLabel;
   final bool showManageStaff;
   final bool showCheckInCheckOut;
+  final bool showMenu;
+  final bool showOrderHistory;
+  final bool showVoucher;
+  final bool showPendingOrders;
+  final bool showOrderHistoryStaff;
+  final bool showInventory;
+  final bool showProductManagement;
+  final bool showCustomerAccounts;
+  final bool showStaffAccounts;
+  final bool showOrderList;
+  final bool showInventoryManager;
+  final bool showWorkSchedule;
+  final bool showCreateWorkSchedule;
+  final bool showHome;
   final Widget body;
 
   const RoleShell({
@@ -25,6 +53,20 @@ class RoleShell extends StatelessWidget {
     required this.roleLabel,
     this.showManageStaff = false,
     this.showCheckInCheckOut = false,
+    this.showMenu = false,
+    this.showOrderHistory = false,
+    this.showVoucher = false,
+    this.showPendingOrders = false,
+    this.showOrderHistoryStaff = false,
+    this.showInventory = false,
+    this.showProductManagement = false,
+    this.showCustomerAccounts = false,
+    this.showStaffAccounts = false,
+    this.showOrderList = false,
+    this.showInventoryManager = false,
+    this.showWorkSchedule = false,
+    this.showCreateWorkSchedule = false,
+    this.showHome = false,
     required this.body,
   });
 
@@ -108,14 +150,30 @@ class RoleShell extends StatelessWidget {
           ),
           drawer: Drawer(
             child: SafeArea(
-              child: Padding(
+              child: ListView(
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _DrawerGreetingHeader(fullName: fullName),
-                    const SizedBox(height: 24),
-                    if (showCheckInCheckOut)
+                children: [
+                  _DrawerGreetingHeader(fullName: fullName),
+                  const SizedBox(height: 24),
+                  if (showHome)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.home),
+                      title: const Text('Home'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HomeManagerScreen(
+                              userId: userId,
+                              userData: liveData ?? userData,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  if (showCheckInCheckOut)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.check_circle_outline),
@@ -132,6 +190,277 @@ class RoleShell extends StatelessWidget {
                             ),
                           );
                         },
+                      ),
+                    if (showMenu)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.restaurant_menu),
+                        title: const Text('Menu'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MenuScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showOrderHistory)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.history),
+                        title: const Text('Lịch sử đặt đơn'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderHistoryScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showVoucher)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.local_offer),
+                        title: const Text('Voucher'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => VoucherScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showPendingOrders)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.pending_actions),
+                        title: const Text('Danh sách đơn chờ'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PendingOrdersScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showOrderHistoryStaff)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.history_edu),
+                        title: const Text('Lịch sử đơn'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderHistoryStaffScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showInventory)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.inventory_2),
+                        title: const Text('Trạng thái kho'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => InventoryStatusScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    // Manager Menu Items
+                    if (showProductManagement)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.inventory),
+                        title: const Text('Quản lý sản phẩm'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductManagementScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showCustomerAccounts || showStaffAccounts)
+                      ExpansionTile(
+                        leading: const Icon(Icons.people),
+                        title: const Text('Quản lý tài khoản'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [
+                          if (showCustomerAccounts)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tài khoản Customer',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => CustomerAccountsScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showStaffAccounts)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tài khoản Staff',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => StaffAccountsScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    if (showOrderList)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.receipt_long),
+                        title: const Text('Danh sách đơn hàng'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderListScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showInventoryManager)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.warehouse),
+                        title: const Text('Trạng thái kho'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => InventoryStatusManagerScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showWorkSchedule || showCreateWorkSchedule)
+                      ExpansionTile(
+                        leading: const Icon(Icons.schedule),
+                        title: const Text('Quản lý lịch làm việc'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [
+                          if (showWorkSchedule)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Lịch làm việc',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => WorkScheduleScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showCreateWorkSchedule)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tạo mới',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateWorkScheduleScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
                       ),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
@@ -173,7 +502,6 @@ class RoleShell extends StatelessWidget {
                 ),
               ),
             ),
-          ),
           body: body,
         );
       },

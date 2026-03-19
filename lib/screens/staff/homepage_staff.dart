@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
+import '../customer/menu_screen.dart';
 
 class HomepageStaff extends StatelessWidget {
   final String userId;
@@ -20,11 +21,14 @@ class HomepageStaff extends StatelessWidget {
       userData: userData,
       roleLabel: 'Staff',
       showCheckInCheckOut: true,
-      body: const Center(
-        child: Text(
-          'Màn hình Staff',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+      showMenu: true,
+      showVoucher: true,
+      showPendingOrders: true,
+      showOrderHistoryStaff: true,
+      showInventory: true,
+      body: MenuScreen(
+        userId: userId,
+        userData: userData,
       ),
     );
   }
