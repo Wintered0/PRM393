@@ -1,7 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
-import 'home_manager_screen.dart';
 
 class HomepageManager extends StatelessWidget {
   final String userId;
@@ -20,18 +19,25 @@ class HomepageManager extends StatelessWidget {
       userId: userId,
       userData: userData,
       roleLabel: 'Manager',
-      showManageStaff: true,
       showHome: true,
       showProductManagement: true,
-      showCustomerAccounts: true,
-      showStaffAccounts: true,
+      showVoucherManagement: true,
       showOrderList: true,
-      showInventoryManager: true,
-      showWorkSchedule: true,
-      showCreateWorkSchedule: true,
-      body: HomeManagerScreen(
-        userId: userId,
-        userData: userData,
+      showAttendanceTracking: true,
+      showInventoryTracking: true,
+      showApproveInboundOrder: true,
+      showApproveOutboundOrder: true,
+      showProfile: true,
+      body: Scaffold(
+        appBar: AppBar(
+          title: Text('Home'),
+        ),
+        body: Center(
+          child: Text(
+            'Chào mừng đến với trang quản lý!',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
       ),
     );
   }

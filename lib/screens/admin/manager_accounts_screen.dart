@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class HomeManagerScreen extends StatelessWidget {
+class ManagerAccountsScreen extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
 
-  const HomeManagerScreen({
+  const ManagerAccountsScreen({
     super.key,
     required this.userId,
     required this.userData,
@@ -14,11 +14,11 @@ class HomeManagerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Tài khoản Manager'),
       ),
       body: const Center(
         child: Text(
-          'Chào mừng đến với trang quản lý!',
+          'Danh sách tài khoản Manager',
           style: TextStyle(fontSize: 18),
         ),
       ),

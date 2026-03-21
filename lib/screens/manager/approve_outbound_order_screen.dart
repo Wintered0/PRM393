@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class InventoryStatusScreen extends StatelessWidget {
+class ApproveOutboundOrderScreen extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
 
-  const InventoryStatusScreen({
+  const ApproveOutboundOrderScreen({
     super.key,
     required this.userId,
     required this.userData,
@@ -14,11 +14,11 @@ class InventoryStatusScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trạng thái kho'),
+        title: const Text('Duyệt đơn xuất hàng'),
       ),
       body: const Center(
         child: Text(
-          'Trạng thái kho hàng',
+          'Duyệt đơn xuất hàng',
           style: TextStyle(fontSize: 18),
         ),
       ),

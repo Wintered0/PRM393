@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class StaffAccountsScreen extends StatelessWidget {
+class ApproveInboundOrderScreen extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
 
-  const StaffAccountsScreen({
+  const ApproveInboundOrderScreen({
     super.key,
     required this.userId,
     required this.userData,
@@ -14,11 +14,11 @@ class StaffAccountsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tài khoản Staff'),
+        title: const Text('Duyệt đơn nhập hàng'),
       ),
       body: const Center(
         child: Text(
-          'Danh sách tài khoản Staff',
+          'Duyệt đơn nhập hàng',
           style: TextStyle(fontSize: 18),
         ),
       ),

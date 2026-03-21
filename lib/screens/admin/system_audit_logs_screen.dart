@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class CreateWorkScheduleScreen extends StatelessWidget {
+class SystemAuditLogsScreen extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
 
-  const CreateWorkScheduleScreen({
+  const SystemAuditLogsScreen({
     super.key,
     required this.userId,
     required this.userData,
@@ -14,11 +14,11 @@ class CreateWorkScheduleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tạo mới lịch làm việc'),
+        title: const Text('System Audit Logs'),
       ),
       body: const Center(
         child: Text(
-          'Tạo mới lịch làm việc',
+          'Nhật ký hoạt động hệ thống',
           style: TextStyle(fontSize: 18),
         ),
       ),

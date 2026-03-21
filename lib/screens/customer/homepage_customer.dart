@@ -24,6 +24,8 @@ class HomePage extends StatelessWidget {
       roleLabel: roleLabel,
       showMenu: true,
       showOrderHistory: true,
+      showMyVouchers: true,
+      showProfile: true,
       body: MenuScreen(
         userId: userId,
         userData: userData,

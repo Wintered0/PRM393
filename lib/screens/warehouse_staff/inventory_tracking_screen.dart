@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class CustomerAccountsScreen extends StatelessWidget {
+class InventoryTrackingScreen extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
 
-  const CustomerAccountsScreen({
+  const InventoryTrackingScreen({
     super.key,
     required this.userId,
     required this.userData,
@@ -14,11 +14,11 @@ class CustomerAccountsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tài khoản Customer'),
+        title: const Text('Theo dõi kho'),
       ),
       body: const Center(
         child: Text(
-          'Danh sách tài khoản Customer',
+          'Theo dõi trạng thái kho hàng',
           style: TextStyle(fontSize: 18),
         ),
       ),
