@@ -29,6 +29,38 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   Timer? _cooldownTimer;
 
   @override
+  void initState() {
+    super.initState();
+    _checkIfAlreadyVerified();
+  }
+
+  Future<void> _checkIfAlreadyVerified() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .get();
+      final data = doc.data();
+      if (data != null && data['isVerified'] == true) {
+        if (!mounted) return;
+        await FeedbackOverlay.showPopup(
+          context,
+          isSuccess: true,
+          message: 'Tài khoản đã được xác minh.',
+        );
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      // Continue with normal verification flow
+    }
+  }
+
+  @override
   void dispose() {
     _codeController.dispose();
     _cooldownTimer?.cancel();
