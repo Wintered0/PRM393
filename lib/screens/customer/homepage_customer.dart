@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
 import 'menu_screen.dart';
@@ -22,10 +22,6 @@ class HomePage extends StatelessWidget {
       userId: userId,
       userData: userData,
       roleLabel: roleLabel,
-      showMenu: true,
-      showOrderHistory: true,
-      showMyVouchers: true,
-      showProfile: true,
       body: MenuScreen(
         userId: userId,
         userData: userData,

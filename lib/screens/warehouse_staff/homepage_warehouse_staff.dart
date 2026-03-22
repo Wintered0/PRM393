@@ -21,10 +21,6 @@ class HomepageWarehouseStaff extends StatelessWidget {
       userData: userData,
       roleLabel: 'Warehouse Staff',
       showCheckInCheckOut: true,
-      showCreateInboundOrder: true,
-      showCreateOutboundOrder: true,
-      showInventoryTracking: true,
-      showProfile: true,
       body: CheckInCheckOutScreen(
         userId: userId,
         userData: userData,

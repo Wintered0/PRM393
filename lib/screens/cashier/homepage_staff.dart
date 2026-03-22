@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
 import '../attendance/checkin_checkout_screen.dart';
@@ -21,11 +21,6 @@ class HomepageStaff extends StatelessWidget {
       userData: userData,
       roleLabel: 'Cashier',
       showCheckInCheckOut: true,
-      showMenu: true,
-      showVoucher: true,
-      showPendingOrders: true,
-      showOrderHistoryStaff: true,
-      showProfile: true,
       body: CheckInCheckOutScreen(
         userId: userId,
         userData: userData,

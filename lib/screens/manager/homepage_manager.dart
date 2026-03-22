@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
 
@@ -19,15 +19,6 @@ class HomepageManager extends StatelessWidget {
       userId: userId,
       userData: userData,
       roleLabel: 'Manager',
-      showHome: true,
-      showProductManagement: true,
-      showVoucherManagement: true,
-      showOrderList: true,
-      showAttendanceTracking: true,
-      showInventoryTracking: true,
-      showApproveInboundOrder: true,
-      showApproveOutboundOrder: true,
-      showProfile: true,
       body: Scaffold(
         appBar: AppBar(
           title: Text('Home'),
