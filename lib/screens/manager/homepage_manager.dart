@@ -21,6 +21,7 @@ class HomepageManager extends StatelessWidget {
       roleLabel: 'Manager',
       showHome: true,
       showProductManagement: true,
+      showCustomerAccounts: true,
       showVoucherManagement: true,
       showOrderList: true,
       showAttendanceTracking: true,

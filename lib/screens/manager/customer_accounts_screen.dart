@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/firestore_service.dart';
 
-class CustomerAccountsAdminScreen extends StatefulWidget {
+class CustomerAccountsScreen extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> userData;
 
-  const CustomerAccountsAdminScreen({
+  const CustomerAccountsScreen({
     super.key,
     required this.userId,
     required this.userData,
   });
 
   @override
-  State<CustomerAccountsAdminScreen> createState() => _CustomerAccountsAdminScreenState();
+  State<CustomerAccountsScreen> createState() => _CustomerAccountsScreenState();
 }
 
-class _CustomerAccountsAdminScreenState extends State<CustomerAccountsAdminScreen> {
+class _CustomerAccountsScreenState extends State<CustomerAccountsScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -49,7 +49,7 @@ class _CustomerAccountsAdminScreenState extends State<CustomerAccountsAdminScree
       ),
       body: Column(
         children: [
-          // Admin Header
+          // BR-06: Manager Header
           Container(
             padding: const EdgeInsets.all(16),
             color: Colors.brown[50],
@@ -58,13 +58,13 @@ class _CustomerAccountsAdminScreenState extends State<CustomerAccountsAdminScree
                 CircleAvatar(
                   backgroundColor: Colors.brown,
                   child: Text(
-                    widget.userData['fullName']?.substring(0, 1).toUpperCase() ?? 'A',
+                    widget.userData['fullName']?.substring(0, 1).toUpperCase() ?? 'M',
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '${widget.userData['fullName'] ?? 'Admin'} - Admin',
+                  '${widget.userData['fullName'] ?? 'Manager'} - Manager',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -279,7 +279,7 @@ class _CustomerAccountsAdminScreenState extends State<CustomerAccountsAdminScree
       await _firestoreService.logAudit(
         action: 'CHANGE_CUSTOMER_STATUS',
         managerId: widget.userId,
-        managerName: widget.userData['fullName'] as String? ?? 'Admin',
+        managerName: widget.userData['fullName'] as String? ?? 'Manager',
         targetUserId: customerId,
         targetUserName: customerName,
         status: statusText,
@@ -287,6 +287,7 @@ class _CustomerAccountsAdminScreenState extends State<CustomerAccountsAdminScree
       );
 
       // BR-01: If setting to OFF, the customer should be logged out
+      // This would require Firebase Auth session management on the client side
       if (!newValue && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

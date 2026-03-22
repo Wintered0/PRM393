@@ -7,6 +7,7 @@ import '../screens/attendance/checkin_checkout_screen.dart';
 import '../screens/customer/menu_screen.dart';
 import '../screens/customer/order_history_screen.dart';
 import '../screens/cashier/voucher_screen.dart';
+import '../screens/customer/my_vouchers_screen.dart';
 import '../screens/cashier/pending_orders_screen.dart';
 import '../screens/cashier/order_history_staff_screen.dart';
 import '../screens/cashier/inventory_status_screen.dart';
@@ -21,6 +22,7 @@ import '../screens/warehouse_staff/create_inbound_order_screen.dart';
 import '../screens/warehouse_staff/create_outbound_order_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/admin/customer_accounts_admin_screen.dart';
+import '../screens/manager/customer_accounts_screen.dart';
 import '../screens/admin/manager_accounts_screen.dart';
 import '../screens/admin/warehouse_staff_accounts_screen.dart';
 import '../screens/admin/cashier_accounts_screen.dart';
@@ -332,6 +334,24 @@ class RoleShell extends StatelessWidget {
                           );
                         },
                       ),
+                    if (showMyVouchers)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.card_giftcard),
+                        title: const Text('Voucher của tôi'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MyVouchersScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     if (showVoucher)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
@@ -479,10 +499,15 @@ class RoleShell extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => CustomerAccountsAdminScreen(
-                                        userId: userId,
-                                        userData: liveData ?? userData,
-                                      ),
+                                      builder: (_) => roleLabel == 'Manager'
+                                          ? CustomerAccountsScreen(
+                                              userId: userId,
+                                              userData: liveData ?? userData,
+                                            )
+                                          : CustomerAccountsAdminScreen(
+                                              userId: userId,
+                                              userData: liveData ?? userData,
+                                            ),
                                     ),
                                   );
                                 },
