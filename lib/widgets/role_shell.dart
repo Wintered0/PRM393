@@ -3,7 +3,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/admin/cashier_accounts_screen.dart';
+import '../screens/admin/customer_accounts_admin_screen.dart';
+import '../screens/admin/manager_accounts_screen.dart';
+import '../screens/admin/system_audit_logs_screen.dart';
+import '../screens/admin/warehouse_staff_accounts_screen.dart';
 import '../screens/attendance/checkin_checkout_screen.dart';
+import '../screens/manager/attendance_tracking_screen.dart';
 import '../screens/manager/manage_staff_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import 'feedback_overlay.dart';
@@ -15,6 +21,14 @@ class RoleShell extends StatelessWidget {
   final String roleLabel;
   final bool showManageStaff;
   final bool showCheckInCheckOut;
+  final bool showManagerAccounts;
+  final bool showWarehouseStaffAccounts;
+  final bool showCashierAccounts;
+  final bool showCustomerAccounts;
+  final bool showSystemAuditLogs;
+  final bool showWorkSchedule;
+  final bool showCreateWorkSchedule;
+  final bool showProfile;
   final Widget body;
 
   const RoleShell({
@@ -25,6 +39,14 @@ class RoleShell extends StatelessWidget {
     required this.roleLabel,
     this.showManageStaff = false,
     this.showCheckInCheckOut = false,
+    this.showManagerAccounts = false,
+    this.showWarehouseStaffAccounts = false,
+    this.showCashierAccounts = false,
+    this.showCustomerAccounts = false,
+    this.showSystemAuditLogs = false,
+    this.showWorkSchedule = false,
+    this.showCreateWorkSchedule = false,
+    this.showProfile = false,
     required this.body,
   });
 
@@ -371,22 +393,149 @@ class RoleShell extends StatelessWidget {
                       ),
                     ),
                   ],
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.person_outline),
-                    title: const Text('Profile'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ProfileScreen(
-                            userId: userId,
+                  if (roleKey == 'admin') ...[
+                    if (showManagerAccounts)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.manage_accounts_outlined),
+                        title: const Text('T\u00e0i kho\u1ea3n Manager'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final u = liveData ?? userData;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ManagerAccountsScreen(
+                                userId: userId,
+                                userData: u,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showWarehouseStaffAccounts)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.warehouse_outlined),
+                        title: const Text('T\u00e0i kho\u1ea3n Warehouse Staff'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final u = liveData ?? userData;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => WarehouseStaffAccountsScreen(
+                                userId: userId,
+                                userData: u,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showCashierAccounts)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.point_of_sale_outlined),
+                        title: const Text('T\u00e0i kho\u1ea3n Cashier'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final u = liveData ?? userData;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CashierAccountsScreen(
+                                userId: userId,
+                                userData: u,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showCustomerAccounts)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.people_outline),
+                        title: const Text('T\u00e0i kho\u1ea3n Customer'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final u = liveData ?? userData;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CustomerAccountsAdminScreen(
+                                userId: userId,
+                                userData: u,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showSystemAuditLogs)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.fact_check_outlined),
+                        title: const Text('System Audit Logs'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final u = liveData ?? userData;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SystemAuditLogsScreen(
+                                userId: userId,
+                                userData: u,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showWorkSchedule)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.event_note_outlined),
+                        title: const Text('L\u1ecbch l\u00e0m vi\u1ec7c'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          final u = liveData ?? userData;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AttendanceTrackingScreen(
+                                userId: userId,
+                                userData: u,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showCreateWorkSchedule)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.add_circle_outline),
+                        title: const Text('T\u1ea1o l\u1ecbch l\u00e0m vi\u1ec7c'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await _navigateOrToast(context, '');
+                        },
+                      ),
+                  ],
+                  if (roleKey != 'admin' || showProfile)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.person_outline),
+                      title: const Text('Profile'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProfileScreen(
+                              userId: userId,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
                   if (showManageStaff)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
