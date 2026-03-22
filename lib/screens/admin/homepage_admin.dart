@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
-import 'menu_screen.dart';
+import 'system_audit_logs_screen.dart';
 
-class HomePage extends StatelessWidget {
+class HomepageAdmin extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
-  final String roleLabel;
 
-  const HomePage({
+  const HomepageAdmin({
     super.key,
     required this.userId,
     required this.userData,
-    this.roleLabel = 'Customer',
   });
 
   @override
   Widget build(BuildContext context) {
     return RoleShell(
-      title: 'Customer Home',
+      title: 'Admin Home',
       userId: userId,
       userData: userData,
-      roleLabel: roleLabel,
-      body: MenuScreen(
+      roleLabel: 'Admin',
+      body: SystemAuditLogsScreen(
         userId: userId,
         userData: userData,
       ),

@@ -99,6 +99,9 @@ class RoleShell extends StatelessWidget {
         final fullName = _resolveFullName(liveData);
         final rawRoleKey = _resolveRoleKey(liveData);
         final roleKey = rawRoleKey == 'user' ? 'customer' : rawRoleKey;
+        final isCashierLike = roleKey == 'staff' || roleKey == 'cashier';
+        final showStaffCheckIn =
+            showCheckInCheckOut && (isCashierLike || roleKey == 'warehouse_staff');
 
         return Scaffold(
           appBar: AppBar(
@@ -139,7 +142,7 @@ class RoleShell extends StatelessWidget {
                 children: [
                   _DrawerGreetingHeader(fullName: fullName),
                   const SizedBox(height: 24),
-                  if (showCheckInCheckOut && roleKey == 'staff')
+                  if (showStaffCheckIn)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.check_circle_outline),
@@ -157,7 +160,7 @@ class RoleShell extends StatelessWidget {
                         );
                       },
                     ),
-                  if (roleKey == 'staff') ...[
+                  if (isCashierLike) ...[
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.restaurant_menu),

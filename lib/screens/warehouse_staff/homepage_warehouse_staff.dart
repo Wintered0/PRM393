@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
-import 'menu_screen.dart';
+import '../attendance/checkin_checkout_screen.dart';
 
-class HomePage extends StatelessWidget {
+class HomepageWarehouseStaff extends StatelessWidget {
   final String userId;
   final Map<String, dynamic> userData;
-  final String roleLabel;
 
-  const HomePage({
+  const HomepageWarehouseStaff({
     super.key,
     required this.userId,
     required this.userData,
-    this.roleLabel = 'Customer',
   });
 
   @override
   Widget build(BuildContext context) {
     return RoleShell(
-      title: 'Customer Home',
+      title: 'Warehouse Staff Home',
       userId: userId,
       userData: userData,
-      roleLabel: roleLabel,
-      body: MenuScreen(
+      roleLabel: 'Warehouse Staff',
+      showCheckInCheckOut: true,
+      body: CheckInCheckOutScreen(
         userId: userId,
         userData: userData,
       ),

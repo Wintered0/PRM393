@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
 
@@ -19,12 +19,15 @@ class HomepageManager extends StatelessWidget {
       userId: userId,
       userData: userData,
       roleLabel: 'Manager',
-      showManageStaff: true,
-      showCheckInCheckOut: true,
-      body: const Center(
-        child: Text(
-          'Màn hình Manager',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: Scaffold(
+        appBar: AppBar(
+          title: Text('Home'),
+        ),
+        body: Center(
+          child: Text(
+            'Chào mừng đến với trang quản lý!',
+            style: TextStyle(fontSize: 18),
+          ),
         ),
       ),
     );
