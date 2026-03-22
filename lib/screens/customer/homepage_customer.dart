@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
+import 'menu_screen.dart';
 
 class HomePage extends StatelessWidget {
   final String userId;
@@ -21,12 +22,13 @@ class HomePage extends StatelessWidget {
       userId: userId,
       userData: userData,
       roleLabel: roleLabel,
-      body: const Center(
-        child: Text(
-          'Chào mừng bạn đến Cafe Shop Management!',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
+      showMenu: true,
+      showOrderHistory: true,
+      showMyVouchers: true,
+      showProfile: true,
+      body: MenuScreen(
+        userId: userId,
+        userData: userData,
       ),
     );
   }

@@ -262,11 +262,12 @@ class _CheckInCheckOutScreenState extends State<CheckInCheckOutScreen> {
               ? (isNewDay ? 1 : (prevCheckoutCount + 1))
               : (isNewDay ? 0 : prevCheckoutCount);
 
+      final userRole = liveData?['role'] as String? ?? 'user';
       final payload = {
         'userId': widget.userId,
         'firebaseUid': firebaseUid,
         'fullname': _fullName(liveData),
-        'role': 'staff',
+        'role': userRole,
         'address': _address(liveData),
         'dateKey': todayKey,
         'lastAction': action,
