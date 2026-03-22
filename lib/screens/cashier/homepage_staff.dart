@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 
 import '../../widgets/role_shell.dart';
+import '../attendance/checkin_checkout_screen.dart';
 
 class HomepageStaff extends StatelessWidget {
   final String userId;
@@ -15,16 +16,19 @@ class HomepageStaff extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RoleShell(
-      title: 'Staff Home',
+      title: 'Cashier Home',
       userId: userId,
       userData: userData,
-      roleLabel: 'Staff',
+      roleLabel: 'Cashier',
       showCheckInCheckOut: true,
-      body: const Center(
-        child: Text(
-          'Màn hình Staff',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+      showMenu: true,
+      showVoucher: true,
+      showPendingOrders: true,
+      showOrderHistoryStaff: true,
+      showProfile: true,
+      body: CheckInCheckOutScreen(
+        userId: userId,
+        userData: userData,
       ),
     );
   }

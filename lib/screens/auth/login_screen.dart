@@ -11,7 +11,9 @@ import '../../widgets/feedback_overlay.dart';
 import 'forgot_password_email_screen.dart';
 import '../customer/homepage_customer.dart';
 import '../manager/homepage_manager.dart';
-import '../staff/homepage_staff.dart';
+import '../cashier/homepage_staff.dart';
+import '../warehouse_staff/homepage_warehouse_staff.dart';
+import '../admin/homepage_admin.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,10 +42,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String _roleLabel(String role) {
     switch (role) {
+      case 'admin':
+        return 'Admin';
       case 'manager':
         return 'Manager';
-      case 'staff':
-        return 'Staff';
+      case 'cashier':
+        return 'Cashier';
+      case 'warehouse_staff':
+        return 'Warehouse Staff';
       default:
         return 'Customer';
     }
@@ -58,7 +64,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final nextScreen = switch (role) {
       'manager' => HomepageManager(userId: userId, userData: userData),
-      'staff' => HomepageStaff(userId: userId, userData: userData),
+      'cashier' => HomepageStaff(userId: userId, userData: userData),
+      'warehouse_staff' => HomepageWarehouseStaff(userId: userId, userData: userData),
+      'admin' => HomepageAdmin(userId: userId, userData: userData),
       _ => HomePage(userId: userId, userData: userData, roleLabel: roleLabel),
     };
 
