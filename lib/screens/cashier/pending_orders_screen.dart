@@ -53,6 +53,7 @@ class _PendingOrdersScreenState extends State<PendingOrdersScreen> {
             final dateB = (b['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
             return dateA.compareTo(dateB);
           });
+          //Check if there are no pending orders
 
           if (orders.isEmpty) {
             return Center(
