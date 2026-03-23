@@ -26,6 +26,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Map<String, int> _productQuantities = {};
   bool _isLoading = true;
   double _discount = 0;
+  String? _appliedVoucherCode;
+  String? _appliedVoucherId;
 
   @override
   void initState() {
@@ -96,27 +98,54 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final voucher = await _firestoreService.getVoucherByCode(_voucherController.text.trim());
       
       if (voucher != null) {
-        final discountType = voucher['discountType'] as String? ?? 'percent';
-        final discountValue = (voucher['discountValue'] as num?)?.toDouble() ?? 0;
-        final minOrder = (voucher['minOrder'] as num?)?.toDouble() ?? 0;
-        final isActive = voucher['isActive'] as bool? ?? true;
+        final data = voucher.data() as Map<String, dynamic>? ?? {};
+        final discountPercent = (data['discountPercent'] as num?)?.toInt() ?? 0;
+        final maxDiscount = (data['maxDiscount'] as num?)?.toDouble() ?? 0;
+        final minOrderValue = (data['minOrderValue'] as num?)?.toDouble() ?? 0;
+        final maxUsagePerAccount = data['maxUsagePerAccount'] as int? ?? 1;
+        final endDate = _tryGetTimestampDate(voucher, 'endDate');
+        final maxUsage = data['maxUsage'] as int? ?? 0;
+        final usedCount = data['usedCount'] as int? ?? 0;
         
-        if (!isActive) {
-          _showVoucherError('Voucher đã hết hiệu lực');
+        // BR-01: Check if voucher is expired
+        final now = DateTime.now();
+        final isExpired = endDate != null && now.isAfter(endDate);
+        final isMaxedOut = maxUsage > 0 && usedCount >= maxUsage;
+        
+        if (isExpired) {
+          _showVoucherError('Voucher đã hết hạn');
           return;
         }
         
-        if (_subtotal < minOrder) {
-          _showVoucherError('Đơn hàng tối thiểu ${_formatPrice(minOrder)} đ');
+        if (isMaxedOut) {
+          _showVoucherError('Voucher đã hết lượt sử dụng');
           return;
         }
+        
+        // BR-04: Check per-account limit
+        final userUsageCount = await _firestoreService.getUserVoucherUsageCount(voucher.id, widget.userId);
+        if (userUsageCount >= maxUsagePerAccount) {
+          _showVoucherError('Bạn đã sử dụng voucher này rồi');
+          return;
+        }
+        
+        // Check minimum order value
+        if (_subtotal < minOrderValue) {
+          _showVoucherError('Đơn hàng tối thiểu ${_formatPrice(minOrderValue)} đ');
+          return;
+        }
+        
+        // Calculate discount: percent of subtotal, capped at maxDiscount
+        final discountAmount = _subtotal * discountPercent / 100;
+        final finalDiscount = discountAmount > maxDiscount ? maxDiscount : discountAmount;
+        
+        // Store voucher info for order creation
+        final data2 = voucher.data() as Map<String, dynamic>? ?? {};
         
         setState(() {
-          if (discountType == 'percent') {
-            _discount = _subtotal * discountValue / 100;
-          } else {
-            _discount = discountValue;
-          }
+          _discount = finalDiscount;
+          _appliedVoucherCode = data2['code'] as String?;
+          _appliedVoucherId = voucher.id;
         });
         
         if (mounted) {
@@ -129,6 +158,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     } catch (e) {
       _showVoucherError('Lỗi kiểm tra voucher');
+    }
+  }
+
+  // Helper to get date from voucher
+  DateTime? _tryGetTimestampDate(DocumentSnapshot voucher, String field) {
+    try {
+      final data = voucher.data() as Map<String, dynamic>? ?? {};
+      final value = data[field];
+      if (value is Timestamp) {
+        return value.toDate();
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -159,6 +202,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           subtotal: _subtotal,
           discount: _discount,
           finalTotal: _finalTotal,
+          voucherId: _appliedVoucherId,
+          voucherCode: _appliedVoucherCode,
         ),
       ),
     );
@@ -408,6 +453,8 @@ class PaymentScreen extends StatelessWidget {
   final double subtotal;
   final double discount;
   final double finalTotal;
+  final String? voucherId;
+  final String? voucherCode;
 
   const PaymentScreen({
     super.key,
@@ -418,6 +465,8 @@ class PaymentScreen extends StatelessWidget {
     required this.subtotal,
     required this.discount,
     required this.finalTotal,
+    this.voucherId,
+    this.voucherCode,
   });
 
   String _formatPrice(double price) {
@@ -592,7 +641,8 @@ class PaymentScreen extends StatelessWidget {
                                         userData['displayName'] as String? ?? 
                                         userData['email'] as String? ?? '';
 
-                    final orderData = {
+                    // Add voucher info if applied
+                    final Map<String, dynamic> orderData = {
                       'userId': userId,
                       'customerName': customerName,
                       'items': orderItems,
@@ -606,7 +656,19 @@ class PaymentScreen extends StatelessWidget {
                       'createdBy': userId,
                     };
 
+                    // Add voucher info if applied
+                    if (voucherId != null && voucherCode != null) {
+                      orderData['voucherId'] = voucherId;
+                      orderData['voucherCode'] = voucherCode;
+                    }
+
+                    // Create order
                     await firestoreService.createOrder(orderData);
+                    
+                    // Increment voucher usage count if voucher was applied
+                    if (voucherId != null) {
+                      await firestoreService.incrementVoucherUsage(voucherId!);
+                    }
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

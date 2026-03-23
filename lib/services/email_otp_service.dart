@@ -158,4 +158,85 @@ class EmailOtpService {
     }, SetOptions(merge: true));
     return OtpVerifyStatus.success;
   }
+
+  // BR-04: Send password email to new staff
+  static Future<void> sendPasswordEmail({
+    required String receiverEmail,
+    required String password,
+    required String fullName,
+  }) async {
+    if (kIsWeb) {
+      await _sendPasswordByApi(
+        receiverEmail: receiverEmail, 
+        password: password,
+        fullName: fullName,
+      );
+      return;
+    }
+
+    final senderEmail = dotenv.env['SMTP_EMAIL']?.trim() ?? '';
+    final appPassword = dotenv.env['SMTP_APP_PASSWORD']?.trim() ?? '';
+
+    if (senderEmail.isEmpty || appPassword.isEmpty) {
+      throw Exception(
+        'Thiếu SMTP_EMAIL hoặc SMTP_APP_PASSWORD trong file .env',
+      );
+    }
+
+    final smtpServer = gmail(senderEmail, appPassword);
+    final message = Message()
+      ..from = Address(senderEmail, 'CafeShop')
+      ..recipients.add(receiverEmail)
+      ..subject = 'Thông tin đăng nhập hệ thống CafeShop'
+      ..text = '''
+Xin chào $fullName,
+
+Dưới đây là thông tin đăng nhập hệ thống CafeShop của bạn:
+
+Email: $receiverEmail
+Mật khẩu: $password
+
+Vui lòng đăng nhập và đổi mật khẩu ngay sau khi đăng nhập lần đầu.
+
+Trân trọng,
+CafeShop Admin
+''';
+
+    await send(message, smtpServer);
+  }
+
+  static Future<void> _sendPasswordByApi({
+    required String receiverEmail,
+    required String password,
+    required String fullName,
+  }) async {
+    final apiUrl = dotenv.env['OTP_MAIL_API_URL']?.trim() ?? '';
+    final apiKey = dotenv.env['OTP_MAIL_API_KEY']?.trim() ?? '';
+
+    if (apiUrl.isEmpty) {
+      throw Exception(
+        'Thiếu OTP_MAIL_API_URL trong .env. Cần backend API để gửi Gmail trên Web.',
+      );
+    }
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        if (apiKey.isNotEmpty) 'x-api-key': apiKey,
+      },
+      body: jsonEncode({
+        'to': receiverEmail,
+        'password': password,
+        'fullName': fullName,
+        'subject': 'Thông tin đăng nhập hệ thống CafeShop',
+      }),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Gửi mật khẩu thất bại (${response.statusCode}): ${response.body}',
+      );
+    }
+  }
 }

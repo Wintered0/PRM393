@@ -48,8 +48,9 @@ class _LoginScreenState extends State<LoginScreen> {
         return 'Manager';
       case 'cashier':
         return 'Cashier';
+      case 'warehouse':
       case 'warehouse_staff':
-        return 'Warehouse Staff';
+        return 'Warehouse';
       default:
         return 'Customer';
     }
@@ -65,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final nextScreen = switch (role) {
       'manager' => HomepageManager(userId: userId, userData: userData),
       'cashier' => HomepageStaff(userId: userId, userData: userData),
+      'warehouse' => HomepageWarehouseStaff(userId: userId, userData: userData),
       'warehouse_staff' => HomepageWarehouseStaff(userId: userId, userData: userData),
       'admin' => HomepageAdmin(userId: userId, userData: userData),
       _ => HomePage(userId: userId, userData: userData, roleLabel: roleLabel),

@@ -21,6 +21,12 @@ class HomepageStaff extends StatelessWidget {
       userData: userData,
       roleLabel: 'Cashier',
       showCheckInCheckOut: true,
+      showMenu: true,
+      showVoucher: true,
+      showPendingOrders: true,
+      showWorkSchedule: true,
+      showOrderHistoryStaff: true,
+      showProfile: true,
       body: CheckInCheckOutScreen(
         userId: userId,
         userData: userData,

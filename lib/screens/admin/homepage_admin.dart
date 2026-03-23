@@ -25,6 +25,8 @@ class HomepageAdmin extends StatelessWidget {
       showCashierAccounts: true,
       showCustomerAccounts: true,
       showSystemAuditLogs: true,
+      canToggleStaff: true,
+      canCreateStaff: true,
       showWorkSchedule: true,
       showCreateWorkSchedule: true,
       showProfile: true,

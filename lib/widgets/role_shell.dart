@@ -3,8 +3,28 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../screens/admin/cashier_accounts_screen.dart';
+import '../screens/attendance/checkin_checkout_screen.dart';
+import '../screens/customer/menu_screen.dart';
+import '../screens/customer/order_history_screen.dart';
+import '../screens/cashier/voucher_screen.dart';
+import '../screens/customer/my_vouchers_screen.dart';
+import '../screens/cashier/pending_orders_screen.dart';
+import '../screens/cashier/order_history_staff_screen.dart';
+import '../screens/cashier/inventory_status_screen.dart';
+import '../screens/manager/product_management_screen.dart';
+import '../screens/manager/voucher_management_screen.dart';
+import '../screens/manager/attendance_tracking_screen.dart';
+import '../screens/manager/order_list_screen.dart';
+import '../screens/manager/approve_inbound_order_screen.dart';
+import '../screens/manager/approve_outbound_order_screen.dart';
+import '../screens/manager/work_schedule_screen.dart';
+import '../screens/manager/create_work_schedule_screen.dart';
+import '../screens/warehouse_staff/inventory_tracking_screen.dart';
+import '../screens/warehouse_staff/create_inbound_order_screen.dart';
+import '../screens/warehouse_staff/create_outbound_order_screen.dart';
+import '../screens/profile/profile_screen.dart';
 import '../screens/admin/customer_accounts_admin_screen.dart';
+import '../screens/manager/customer_accounts_screen.dart';
 import '../screens/admin/manager_accounts_screen.dart';
 import '../screens/admin/system_audit_logs_screen.dart';
 import '../screens/admin/warehouse_staff_accounts_screen.dart';
@@ -26,9 +46,8 @@ class RoleShell extends StatelessWidget {
   final bool showCashierAccounts;
   final bool showCustomerAccounts;
   final bool showSystemAuditLogs;
-  final bool showWorkSchedule;
-  final bool showCreateWorkSchedule;
-  final bool showProfile;
+  final bool canToggleStaff; // Admin only: can toggle staff accounts
+  final bool canCreateStaff; // Admin only: can create staff accounts
   final Widget body;
 
   const RoleShell({
@@ -44,9 +63,8 @@ class RoleShell extends StatelessWidget {
     this.showCashierAccounts = false,
     this.showCustomerAccounts = false,
     this.showSystemAuditLogs = false,
-    this.showWorkSchedule = false,
-    this.showCreateWorkSchedule = false,
-    this.showProfile = false,
+    this.canToggleStaff = false,
+    this.canCreateStaff = false,
     required this.body,
   });
 
@@ -378,10 +396,26 @@ class RoleShell extends StatelessWidget {
                           await _navigateOrToast(context, '');
                         },
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: ListTile(
+                    if (showMyVouchers)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.card_giftcard),
+                        title: const Text('Voucher của tôi'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MyVouchersScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (showVoucher)
+                      ListTile(
                         contentPadding: EdgeInsets.zero,
                         dense: true,
                         leading: const Icon(Icons.add_circle_outline, size: 20),
@@ -502,13 +536,271 @@ class RoleShell extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (_) => AttendanceTrackingScreen(
                                 userId: userId,
-                                userData: u,
+                                userData: liveData ?? userData,
                               ),
                             ),
                           );
                         },
                       ),
-                    if (showCreateWorkSchedule)
+                    if (showCustomerAccounts || showStaffAccounts)
+                      ExpansionTile(
+                        leading: const Icon(Icons.people),
+                        title: const Text('Quản lý tài khoản'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [
+                          if (showCustomerAccounts)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tài khoản Customer',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => roleLabel == 'Manager'
+                                          ? CustomerAccountsScreen(
+                                              userId: userId,
+                                              userData: liveData ?? userData,
+                                            )
+                                          : CustomerAccountsAdminScreen(
+                                              userId: userId,
+                                              userData: liveData ?? userData,
+                                            ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+
+                          if (showManagerAccounts)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tài khoản Manager',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ManagerAccountsScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                        canToggle: canToggleStaff,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showWarehouseStaffAccounts)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tài khoản Warehouse',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => WarehouseStaffAccountsScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                        canToggle: canToggleStaff,
+                                        canCreate: canCreateStaff,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showCashierAccounts)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tài khoản Cashier',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => CashierAccountsScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                        canToggle: canToggleStaff,
+                                        canCreate: canCreateStaff,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    if (showOrderList)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.receipt_long),
+                        title: const Text('Danh sách đơn hàng'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderListScreen(
+                                userId: userId,
+                                userData: liveData ?? userData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    
+
+                    if (showWorkSchedule || showCreateWorkSchedule)
+                      ExpansionTile(
+                        leading: const Icon(Icons.calendar_month),
+                        title: const Text('Lịch làm việc'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [
+                          if (showWorkSchedule)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Xem lịch',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const WorkScheduleScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showCreateWorkSchedule)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tạo lịch',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const CreateWorkScheduleScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+
+                    if (showInventoryTracking || showApproveInboundOrder || showApproveOutboundOrder)
+                      ExpansionTile(
+                        leading: const Icon(Icons.warehouse),
+                        title: const Text('Trạng thái kho'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [
+                          if (showInventoryTracking)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Trạng thái kho',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => InventoryTrackingScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showApproveInboundOrder)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Duyệt phiếu nhập',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ApproveInboundOrderScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showApproveOutboundOrder)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Duyệt phiếu xuất',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ApproveOutboundOrderScreen(
+                                        userId: userId,
+                                        userData: liveData ?? userData,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+
+                    if (showSystemAuditLogs)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.add_circle_outline),
