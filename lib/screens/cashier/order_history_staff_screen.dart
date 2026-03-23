@@ -225,7 +225,7 @@ class _OrderHistoryStaffScreenState extends State<OrderHistoryStaffScreen> {
                 const SizedBox(height: 20),
                 const Text('Chi tiết đơn hàng', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
-                _buildInfoRow('Người đặt', userId.substring(0, userId.length > 8 ? 8 : userId.length) + '...'),
+                _buildInfoRow('Người đặt', '${userId.substring(0, userId.length > 8 ? 8 : userId.length)}...'),
                 _buildInfoRow('Thời gian đặt', _formatDateTime(createdAt)),
                 const Divider(height: 32),
                 const Text('Danh sách sản phẩm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

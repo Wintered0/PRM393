@@ -75,7 +75,7 @@ class _WorkScheduleScreenState extends State<WorkScheduleScreen> {
                 const Text('Ca làm việc', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedShift ?? 'All',
+                  initialValue: _selectedShift ?? 'All',
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -94,7 +94,7 @@ class _WorkScheduleScreenState extends State<WorkScheduleScreen> {
                 const Text('Vị trí', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedPosition ?? 'All',
+                  initialValue: _selectedPosition ?? 'All',
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),

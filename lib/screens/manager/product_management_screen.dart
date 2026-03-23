@@ -351,21 +351,19 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
     final currentVisibility = product['isVisible'] as bool? ?? true;
     try {
       await _firestoreService.toggleProductVisibility(product.id, !currentVisibility);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(!currentVisibility 
-                ? 'Đã hiển thị sản phẩm' 
-                : 'Đã ẩn sản phẩm'),
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(!currentVisibility 
+              ? 'Đã hiển thị sản phẩm' 
+              : 'Đã ẩn sản phẩm'),
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: $e')),
+      );
     }
   }
 }
@@ -566,7 +564,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
             // Product Type (Dropdown)
             DropdownButtonFormField<String>(
-              value: _selectedProductType,
+              initialValue: _selectedProductType,
               decoration: const InputDecoration(
                 labelText: 'Phân loại *',
                 border: OutlineInputBorder(),
@@ -633,7 +631,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     _isVisible = value;
                   });
                 },
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
               ),
               const SizedBox(height: 16),
             ],

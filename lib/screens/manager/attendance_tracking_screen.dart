@@ -74,7 +74,7 @@ class _AttendanceTrackingScreenState extends State<AttendanceTrackingScreen> {
                 const Text('Ca làm việc', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedShift ?? 'All',
+                  initialValue: _selectedShift ?? 'All',
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -122,8 +122,8 @@ class _AttendanceTrackingScreenState extends State<AttendanceTrackingScreen> {
 
                 if (filteredSchedules.isEmpty) {
                   return Center(
-                    child: Text(
-                      'Không có lịch cho ca ${_selectedShift}',
+                      child: Text(
+                        'Không có lịch cho ca $_selectedShift',
                       style: const TextStyle(fontSize: 16),
                     ),
                   );
@@ -327,7 +327,7 @@ class _AttendanceTrackingScreenState extends State<AttendanceTrackingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color),
       ),
