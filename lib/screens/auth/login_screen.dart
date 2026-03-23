@@ -78,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+//Kiêm tra lỗi google
   String _googleSignInErrorMessage(Object error) {
     if (error is FirebaseAuthException) {
       final messageLower = (error.message ?? '').toLowerCase();

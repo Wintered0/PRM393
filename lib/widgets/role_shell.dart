@@ -26,9 +26,12 @@ import '../screens/profile/profile_screen.dart';
 import '../screens/admin/customer_accounts_admin_screen.dart';
 import '../screens/manager/customer_accounts_screen.dart';
 import '../screens/admin/manager_accounts_screen.dart';
-import '../screens/admin/warehouse_staff_accounts_screen.dart';
-import '../screens/admin/cashier_accounts_screen.dart';
 import '../screens/admin/system_audit_logs_screen.dart';
+import '../screens/admin/warehouse_staff_accounts_screen.dart';
+import '../screens/attendance/checkin_checkout_screen.dart';
+import '../screens/manager/attendance_tracking_screen.dart';
+import '../screens/manager/manage_staff_screen.dart';
+import '../screens/profile/profile_screen.dart';
 import 'feedback_overlay.dart';
 
 class RoleShell extends StatelessWidget {
@@ -38,32 +41,10 @@ class RoleShell extends StatelessWidget {
   final String roleLabel;
   final bool showManageStaff;
   final bool showCheckInCheckOut;
-  final bool showMenu;
-  final bool showOrderHistory;
-  final bool showVoucher;
-  final bool showPendingOrders;
-  final bool showOrderHistoryStaff;
-  final bool showInventory;
-  final bool showProductManagement;
-  final bool showCustomerAccounts;
-  final bool showStaffAccounts;
-  final bool showOrderList;
-  final bool showInventoryManager;
-  final bool showWorkSchedule;
-  final bool showCreateWorkSchedule;
-  final bool showHome;
-  final bool showMyVouchers;
-  final bool showProfile;
-  final bool showCreateInboundOrder;
-  final bool showCreateOutboundOrder;
-  final bool showInventoryTracking;
-  final bool showVoucherManagement;
-  final bool showAttendanceTracking;
-  final bool showApproveInboundOrder;
-  final bool showApproveOutboundOrder;
   final bool showManagerAccounts;
   final bool showWarehouseStaffAccounts;
   final bool showCashierAccounts;
+  final bool showCustomerAccounts;
   final bool showSystemAuditLogs;
   final bool canToggleStaff; // Admin only: can toggle staff accounts
   final bool canCreateStaff; // Admin only: can create staff accounts
@@ -75,34 +56,12 @@ class RoleShell extends StatelessWidget {
     required this.userId,
     required this.userData,
     required this.roleLabel,
-    this.showManageStaff = false, // Disabled - screen not available
+    this.showManageStaff = false,
     this.showCheckInCheckOut = false,
-    this.showMenu = false,
-    this.showOrderHistory = false,
-    this.showVoucher = false,
-    this.showPendingOrders = false,
-    this.showOrderHistoryStaff = false,
-    this.showInventory = false,
-    this.showProductManagement = false,
-    this.showCustomerAccounts = false,
-    this.showStaffAccounts = false,
-    this.showOrderList = false,
-    this.showInventoryManager = false,
-    this.showWorkSchedule = false,
-    this.showCreateWorkSchedule = false,
-    this.showHome = false,
-    this.showMyVouchers = false,
-    this.showProfile = false,
-    this.showCreateInboundOrder = false,
-    this.showCreateOutboundOrder = false,
-    this.showInventoryTracking = false,
-    this.showVoucherManagement = false,
-    this.showAttendanceTracking = false,
-    this.showApproveInboundOrder = false,
-    this.showApproveOutboundOrder = false,
     this.showManagerAccounts = false,
     this.showWarehouseStaffAccounts = false,
     this.showCashierAccounts = false,
+    this.showCustomerAccounts = false,
     this.showSystemAuditLogs = false,
     this.canToggleStaff = false,
     this.canCreateStaff = false,
@@ -113,6 +72,30 @@ class RoleShell extends StatelessWidget {
     final liveName = (liveData?['fullname'] as String?)?.trim();
     if (liveName != null && liveName.isNotEmpty) return liveName;
     return (userData['fullname'] as String? ?? 'Ng\u01b0\u1eddi d\u00f9ng').trim();
+  }
+
+  String _resolveRoleKey(Map<String, dynamic>? liveData) {
+    final liveRole = (liveData?['role'] as String?)?.toLowerCase().trim();
+    if (liveRole != null && liveRole.isNotEmpty) return liveRole;
+    final fallback = (userData['role'] as String? ?? '').toLowerCase().trim();
+    if (fallback.isNotEmpty) return fallback;
+    return 'customer';
+  }
+
+  Future<void> _navigateOrToast(
+    BuildContext context,
+    String route,
+  ) async {
+    if (route.trim().isEmpty) {
+      await FeedbackOverlay.showPopup(
+        context,
+        message: 'T\u00ednh n\u0103ng \u0111ang c\u1eadp nh\u1eadt.',
+        duration: const Duration(milliseconds: 1400),
+      );
+      return;
+    }
+    if (!context.mounted) return;
+    Navigator.pushNamed(context, route);
   }
 
   Future<void> _handleLogout(BuildContext context) async {
@@ -154,6 +137,11 @@ class RoleShell extends StatelessWidget {
       builder: (context, snapshot) {
         final liveData = snapshot.data?.data();
         final fullName = _resolveFullName(liveData);
+        final rawRoleKey = _resolveRoleKey(liveData);
+        final roleKey = rawRoleKey == 'user' ? 'customer' : rawRoleKey;
+        final isCashierLike = roleKey == 'staff' || roleKey == 'cashier';
+        final showStaffCheckIn =
+            showCheckInCheckOut && (isCashierLike || roleKey == 'warehouse_staff');
 
         return Scaffold(
           appBar: AppBar(
@@ -194,150 +182,218 @@ class RoleShell extends StatelessWidget {
                 children: [
                   _DrawerGreetingHeader(fullName: fullName),
                   const SizedBox(height: 24),
-                  if (showHome)
+                  if (showStaffCheckIn)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.home),
-                      title: const Text('Home'),
+                      leading: const Icon(Icons.check_circle_outline),
+                      title: const Text('Check-in/Check-out'),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const SizedBox(), // TODO: Home manager
+                            builder: (_) => CheckInCheckOutScreen(
+                              userId: userId,
+                              userData: liveData ?? userData,
+                            ),
                           ),
                         );
                       },
                     ),
-                  if (showCheckInCheckOut)
-                      ListTile(
+                  if (isCashierLike) ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.restaurant_menu),
+                      title: const Text('Menu'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.card_giftcard),
+                      title: const Text('Voucher/L\u1ecbch s\u1eed d\u00f9ng'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.receipt_long),
+                      title: const Text('Danh s\u00e1ch \u0111\u01a1n ch\u1edd'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.history),
+                      title: const Text('L\u1ecbch s\u1eed \u0111\u01a1n'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.inventory_2_outlined),
+                      title: const Text('Nh\u1eadp/Xu\u1ea5t kho'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.file_download_outlined),
+                      title: const Text('Xu\u1ea5t file b\u00e1o c\u00e1o'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                  ],
+                  if (roleKey == 'customer') ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.restaurant_menu),
+                      title: const Text('Menu'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.history),
+                      title: const Text('L\u1ecbch s\u1eed \u0111\u1eb7t \u0111\u01a1n'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.card_giftcard),
+                      title: const Text('Voucher c\u1ee7a t\u00f4i'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                  ],
+                  if (roleKey == 'manager') ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.home_outlined),
+                      title: const Text('Home'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.inventory_2_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd s\u1ea3n ph\u1ea9m'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.card_giftcard),
+                      title: const Text('Qu\u1ea3n l\u00fd Voucher'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.manage_accounts_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd t\u00e0i kho\u1ea3n'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.check_circle_outline),
-                        title: const Text('Check-in/Check-out'),
-                        onTap: () {
+                        dense: true,
+                        leading: const Icon(Icons.person_outline, size: 20),
+                        title: const Text('T\u00e0i kho\u1ea3n Staff'),
+                        onTap: () async {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CheckInCheckOutScreen(
-                                userId: userId,
-                                userData: liveData ?? userData,
-                              ),
-                            ),
-                          );
+                          await _navigateOrToast(context, '');
                         },
                       ),
-                    if (showCreateInboundOrder || showCreateOutboundOrder || showInventoryTracking)
-                      ExpansionTile(
-                        leading: const Icon(Icons.warehouse),
-                        title: const Text('Trạng thái kho'),
-                        tilePadding: EdgeInsets.zero,
-                        children: [
-                          if (showCreateInboundOrder)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 32),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: const Text(
-                                  'Phiếu nhập kho',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CreateInboundOrderScreen(
-                                        userId: userId,
-                                        userData: liveData ?? userData,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          if (showCreateOutboundOrder)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 32),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: const Text(
-                                  'Phiếu xuất kho',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CreateOutboundOrderScreen(
-                                        userId: userId,
-                                        userData: liveData ?? userData,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          if (showInventoryTracking)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 32),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: const Text(
-                                  'Theo dõi kho',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => InventoryTrackingScreen(
-                                        userId: userId,
-                                        userData: liveData ?? userData,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                    if (showMenu)
-                      ListTile(
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.restaurant_menu),
-                        title: const Text('Menu'),
-                        onTap: () {
+                        dense: true,
+                        leading: const Icon(Icons.person_outline, size: 20),
+                        title: const Text('T\u00e0i kho\u1ea3n Customer'),
+                        onTap: () async {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MenuScreen(
-                                userId: userId,
-                                userData: liveData ?? userData,
-                              ),
-                            ),
-                          );
+                          await _navigateOrToast(context, '');
                         },
                       ),
-                    if (showOrderHistory)
-                      ListTile(
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.receipt_long),
+                      title: const Text('Danh s\u00e1ch \u0111\u01a1n h\u00e0ng'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.warehouse_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd kho'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.event_note_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd l\u1ecbch l\u00e0m vi\u1ec7c'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.assignment_outlined),
+                      title: const Text('Request Absent'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _navigateOrToast(context, '');
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.history),
-                        title: const Text('Lịch sử đặt đơn'),
-                        onTap: () {
+                        dense: true,
+                        leading: const Icon(Icons.event_available, size: 20),
+                        title: const Text('L\u1ecbch l\u00e0m vi\u1ec7c'),
+                        onTap: () async {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OrderHistoryScreen(
-                                userId: userId,
-                                userData: liveData ?? userData,
-                              ),
-                            ),
-                          );
+                          await _navigateOrToast(context, '');
                         },
                       ),
                     if (showMyVouchers)
@@ -361,119 +417,120 @@ class RoleShell extends StatelessWidget {
                     if (showVoucher)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.local_offer),
-                        title: const Text('Voucher'),
+                        dense: true,
+                        leading: const Icon(Icons.add_circle_outline, size: 20),
+                        title: const Text('T\u1ea1o m\u1edbi'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await _navigateOrToast(context, '');
+                        },
+                      ),
+                    ),
+                  ],
+                  if (roleKey == 'admin') ...[
+                    if (showManagerAccounts)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.manage_accounts_outlined),
+                        title: const Text('T\u00e0i kho\u1ea3n Manager'),
                         onTap: () {
                           Navigator.pop(context);
+                          final u = liveData ?? userData;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => VoucherScreen(
+                              builder: (_) => ManagerAccountsScreen(
                                 userId: userId,
-                                userData: liveData ?? userData,
+                                userData: u,
                               ),
                             ),
                           );
                         },
                       ),
-                    if (showPendingOrders)
+                    if (showWarehouseStaffAccounts)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.pending_actions),
-                        title: const Text('Danh sách đơn chờ'),
+                        leading: const Icon(Icons.warehouse_outlined),
+                        title: const Text('T\u00e0i kho\u1ea3n Warehouse Staff'),
                         onTap: () {
                           Navigator.pop(context);
+                          final u = liveData ?? userData;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => PendingOrdersScreen(
+                              builder: (_) => WarehouseStaffAccountsScreen(
                                 userId: userId,
-                                userData: liveData ?? userData,
+                                userData: u,
                               ),
                             ),
                           );
                         },
                       ),
-                    if (showOrderHistoryStaff)
+                    if (showCashierAccounts)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.history_edu),
-                        title: const Text('Lịch sử đơn'),
+                        leading: const Icon(Icons.point_of_sale_outlined),
+                        title: const Text('T\u00e0i kho\u1ea3n Cashier'),
                         onTap: () {
                           Navigator.pop(context);
+                          final u = liveData ?? userData;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => OrderHistoryStaffScreen(
+                              builder: (_) => CashierAccountsScreen(
                                 userId: userId,
-                                userData: liveData ?? userData,
+                                userData: u,
                               ),
                             ),
                           );
                         },
                       ),
-                    if (showInventory)
+                    if (showCustomerAccounts)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.inventory_2),
-                        title: const Text('Trạng thái kho'),
+                        leading: const Icon(Icons.people_outline),
+                        title: const Text('T\u00e0i kho\u1ea3n Customer'),
                         onTap: () {
                           Navigator.pop(context);
+                          final u = liveData ?? userData;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => InventoryStatusScreen(
+                              builder: (_) => CustomerAccountsAdminScreen(
                                 userId: userId,
-                                userData: liveData ?? userData,
+                                userData: u,
                               ),
                             ),
                           );
                         },
                       ),
-                    // Manager Menu Items
-                    if (showProductManagement)
+                    if (showSystemAuditLogs)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.inventory),
-                        title: const Text('Quản lý sản phẩm'),
+                        leading: const Icon(Icons.fact_check_outlined),
+                        title: const Text('System Audit Logs'),
                         onTap: () {
                           Navigator.pop(context);
+                          final u = liveData ?? userData;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ProductManagementScreen(
+                              builder: (_) => SystemAuditLogsScreen(
                                 userId: userId,
-                                userData: liveData ?? userData,
+                                userData: u,
                               ),
                             ),
                           );
                         },
                       ),
-                    if (showVoucherManagement)
+                    if (showWorkSchedule)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.local_offer),
-                        title: const Text('Quản lý Voucher'),
+                        leading: const Icon(Icons.event_note_outlined),
+                        title: const Text('L\u1ecbch l\u00e0m vi\u1ec7c'),
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => VoucherManagementScreen(
-                                userId: userId,
-                                userData: liveData ?? userData,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    if (showAttendanceTracking)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.access_time),
-                        title: const Text('Theo dõi chấm công'),
-                        onTap: () {
-                          Navigator.pop(context);
+                          final u = liveData ?? userData;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -746,29 +803,22 @@ class RoleShell extends StatelessWidget {
                     if (showSystemAuditLogs)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.security),
-                        title: const Text('Nhật ký hệ thống'),
-                        onTap: () {
+                        leading: const Icon(Icons.add_circle_outline),
+                        title: const Text('T\u1ea1o l\u1ecbch l\u00e0m vi\u1ec7c'),
+                        onTap: () async {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SystemAuditLogsScreen(
-                                userId: userId,
-                                userData: liveData ?? userData,
-                              ),
-                            ),
-                          );
+                          await _navigateOrToast(context, '');
                         },
                       ),
-                    if (showProfile)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.person_outline),
-                        title: const Text('Profile'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
+                  ],
+                  if (roleKey != 'admin' || showProfile)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.person_outline),
+                      title: const Text('Profile'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => ProfileScreen(
@@ -778,30 +828,30 @@ class RoleShell extends StatelessWidget {
                         );
                       },
                     ),
-                    if (false && showManageStaff)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.group_outlined),
-                        title: const Text('Qu\u1ea3n l\u00fd Staff'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SizedBox(), // TODO: Add ManageStaffScreen
-                            ),
-                          );
-                        },
-                      ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () => _handleLogout(context),
-                      child: const Text('\u0110\u0103ng xu\u1ea5t'),
+                  if (showManageStaff)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.group_outlined),
+                      title: const Text('Qu\u1ea3n l\u00fd Staff'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ManageStaffScreen(),
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => _handleLogout(context),
+                    child: const Text('\u0110\u0103ng xu\u1ea5t'),
+                  ),
+                ],
               ),
             ),
+          ),
           body: body,
         );
       },
