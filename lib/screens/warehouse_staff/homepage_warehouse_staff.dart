@@ -24,6 +24,7 @@ class HomepageWarehouseStaff extends StatelessWidget {
       showCreateInboundOrder: true,
       showCreateOutboundOrder: true,
       showInventoryTracking: true,
+      showWorkSchedule: true,
       showProfile: true,
       body: CheckInCheckOutScreen(
         userId: userId,

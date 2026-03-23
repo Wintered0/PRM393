@@ -24,6 +24,7 @@ class HomepageStaff extends StatelessWidget {
       showMenu: true,
       showVoucher: true,
       showPendingOrders: true,
+      showWorkSchedule: true,
       showOrderHistoryStaff: true,
       showProfile: true,
       body: CheckInCheckOutScreen(

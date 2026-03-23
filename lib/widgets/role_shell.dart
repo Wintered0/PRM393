@@ -17,6 +17,8 @@ import '../screens/manager/attendance_tracking_screen.dart';
 import '../screens/manager/order_list_screen.dart';
 import '../screens/manager/approve_inbound_order_screen.dart';
 import '../screens/manager/approve_outbound_order_screen.dart';
+import '../screens/manager/work_schedule_screen.dart';
+import '../screens/manager/create_work_schedule_screen.dart';
 import '../screens/warehouse_staff/inventory_tracking_screen.dart';
 import '../screens/warehouse_staff/create_inbound_order_screen.dart';
 import '../screens/warehouse_staff/create_outbound_order_screen.dart';
@@ -63,6 +65,8 @@ class RoleShell extends StatelessWidget {
   final bool showWarehouseStaffAccounts;
   final bool showCashierAccounts;
   final bool showSystemAuditLogs;
+  final bool canToggleStaff; // Admin only: can toggle staff accounts
+  final bool canCreateStaff; // Admin only: can create staff accounts
   final Widget body;
 
   const RoleShell({
@@ -100,6 +104,8 @@ class RoleShell extends StatelessWidget {
     this.showWarehouseStaffAccounts = false,
     this.showCashierAccounts = false,
     this.showSystemAuditLogs = false,
+    this.canToggleStaff = false,
+    this.canCreateStaff = false,
     required this.body,
   });
 
@@ -531,6 +537,7 @@ class RoleShell extends StatelessWidget {
                                       builder: (_) => ManagerAccountsScreen(
                                         userId: userId,
                                         userData: liveData ?? userData,
+                                        canToggle: canToggleStaff,
                                       ),
                                     ),
                                   );
@@ -543,7 +550,7 @@ class RoleShell extends StatelessWidget {
                               child: ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 title: const Text(
-                                  'Tài khoản Warehouse Staff',
+                                  'Tài khoản Warehouse',
                                   style: TextStyle(fontSize: 14),
                                 ),
                                 onTap: () {
@@ -554,6 +561,8 @@ class RoleShell extends StatelessWidget {
                                       builder: (_) => WarehouseStaffAccountsScreen(
                                         userId: userId,
                                         userData: liveData ?? userData,
+                                        canToggle: canToggleStaff,
+                                        canCreate: canCreateStaff,
                                       ),
                                     ),
                                   );
@@ -577,6 +586,8 @@ class RoleShell extends StatelessWidget {
                                       builder: (_) => CashierAccountsScreen(
                                         userId: userId,
                                         userData: liveData ?? userData,
+                                        canToggle: canToggleStaff,
+                                        canCreate: canCreateStaff,
                                       ),
                                     ),
                                   );
@@ -603,6 +614,57 @@ class RoleShell extends StatelessWidget {
                           );
                         },
                       ),
+                    
+
+                    if (showWorkSchedule || showCreateWorkSchedule)
+                      ExpansionTile(
+                        leading: const Icon(Icons.calendar_month),
+                        title: const Text('Lịch làm việc'),
+                        tilePadding: EdgeInsets.zero,
+                        children: [
+                          if (showWorkSchedule)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Xem lịch',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const WorkScheduleScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (showCreateWorkSchedule)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  'Tạo lịch',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const CreateWorkScheduleScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+
                     if (showInventoryTracking || showApproveInboundOrder || showApproveOutboundOrder)
                       ExpansionTile(
                         leading: const Icon(Icons.warehouse),

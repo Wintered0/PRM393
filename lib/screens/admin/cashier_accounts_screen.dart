@@ -5,11 +5,15 @@ import '../../services/firestore_service.dart';
 class CashierAccountsScreen extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> userData;
+  final bool canToggle; // Only Admin can toggle
+  final bool canCreate; // Only Admin can create
 
   const CashierAccountsScreen({
     super.key,
     required this.userId,
     required this.userData,
+    this.canToggle = false, // Default false for Manager
+    this.canCreate = false, // Default false for Manager
   });
 
   @override
@@ -45,13 +49,15 @@ class _CashierAccountsScreenState extends State<CashierAccountsScreen> {
         backgroundColor: Colors.brown,
         foregroundColor: Colors.white,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateDialog(context),
-        backgroundColor: Colors.brown,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Tạo +'),
-      ),
+      floatingActionButton: widget.canCreate
+          ? FloatingActionButton.extended(
+              onPressed: () => _showCreateDialog(context),
+              backgroundColor: Colors.brown,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add),
+              label: const Text('Tạo +'),
+            )
+          : null,
       body: Column(
         children: [
           // Admin Header
@@ -206,12 +212,13 @@ class _CashierAccountsScreenState extends State<CashierAccountsScreen> {
                   onPressed: () => _showDetailDialog(context, staff),
                   tooltip: 'Chi tiết',
                 ),
-                Switch(
-                  value: isActive,
-                  activeTrackColor: Colors.green,
-                  inactiveThumbColor: Colors.red,
-                  onChanged: (newValue) => _toggleStaffStatus(staffId, fullname, newValue),
-                ),
+                if (widget.canToggle)
+                  Switch(
+                    value: isActive,
+                    activeTrackColor: Colors.green,
+                    inactiveThumbColor: Colors.red,
+                    onChanged: (newValue) => _toggleStaffStatus(staffId, fullname, newValue),
+                  ),
               ],
             ),
           ),

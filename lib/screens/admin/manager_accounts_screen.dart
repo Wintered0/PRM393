@@ -5,11 +5,13 @@ import '../../services/firestore_service.dart';
 class ManagerAccountsScreen extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> userData;
+  final bool canToggle; // Only Admin can toggle
 
   const ManagerAccountsScreen({
     super.key,
     required this.userId,
     required this.userData,
+    this.canToggle = false, // Default false for Manager
   });
 
   @override
@@ -229,12 +231,13 @@ class _ManagerAccountsScreenState extends State<ManagerAccountsScreen> {
                   onPressed: () => _showDetailDialog(context, manager),
                   tooltip: 'Chi tiết',
                 ),
-                Switch(
-                  value: isActive,
-                  activeTrackColor: Colors.green,
-                  inactiveThumbColor: Colors.red,
-                  onChanged: (newValue) => _toggleManagerStatus(managerId, fullname, newValue),
-                ),
+                if (widget.canToggle)
+                  Switch(
+                    value: isActive,
+                    activeTrackColor: Colors.green,
+                    inactiveThumbColor: Colors.red,
+                    onChanged: (newValue) => _toggleManagerStatus(managerId, fullname, newValue),
+                  ),
               ],
             ),
           ),
