@@ -53,6 +53,7 @@ class _PendingOrdersScreenState extends State<PendingOrdersScreen> {
             final dateB = (b['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
             return dateA.compareTo(dateB);
           });
+          //Check if there are no pending orders
 
           if (orders.isEmpty) {
             return Center(
@@ -387,7 +388,10 @@ class _PendingOrdersScreenState extends State<PendingOrdersScreen> {
         if (currentStatus == 'pending') ...[
           Expanded(
             child: ElevatedButton(
-              onPressed: () => _updateOrderStatus(order.id, 'accepted'),
+              onPressed: () {
+                assert(_isValidStatusTransition(currentStatus, 'accepted'));
+                _updateOrderStatus(order.id, 'accepted');
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
@@ -399,7 +403,10 @@ class _PendingOrdersScreenState extends State<PendingOrdersScreen> {
         ] else if (currentStatus == 'accepted') ...[
           Expanded(
             child: ElevatedButton(
-              onPressed: () => _updateOrderStatus(order.id, 'done'),
+              onPressed: () {
+                assert(_isValidStatusTransition(currentStatus, 'done'));
+                _updateOrderStatus(order.id, 'done');
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
