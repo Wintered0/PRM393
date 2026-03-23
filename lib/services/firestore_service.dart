@@ -35,7 +35,7 @@ class FirestoreService {
     return _db
         .collection('products')
         .where('name', isGreaterThanOrEqualTo: query)
-        .where('name', isLessThanOrEqualTo: query + '\uf8ff')
+        .where('name', isLessThanOrEqualTo: '$query\uf8ff')
         .snapshots();
   }
 
@@ -44,7 +44,7 @@ class FirestoreService {
     return _db
         .collection('products')
         .where('name', isGreaterThanOrEqualTo: query)
-        .where('name', isLessThanOrEqualTo: query + '\uf8ff')
+        .where('name', isLessThanOrEqualTo: '$query\uf8ff')
         .where('isVisible', isEqualTo: true)
         .snapshots();
   }
@@ -216,8 +216,8 @@ class FirestoreService {
     }
 
     // Create user in Firebase Auth
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    UserCredential userCredential = await auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );

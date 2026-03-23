@@ -335,28 +335,25 @@ class _ManagerAccountsScreenState extends State<ManagerAccountsScreen> {
 
   void _showCreateDialog(BuildContext context) async {
     final activeCount = await _firestoreService.getActiveManagerCount();
+    if (!context.mounted) return;
     if (activeCount >= 2) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã đạt giới hạn 2 tài khoản Manager hoạt động'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã đạt giới hạn 2 tài khoản Manager hoạt động'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => CreateStaffDialog(
-          userId: widget.userId,
-          userData: widget.userData,
-          staffRole: 'Manager',
-        ),
-      );
-    }
+    showDialog(
+      context: context,
+      builder: (context) => CreateStaffDialog(
+        userId: widget.userId,
+        userData: widget.userData,
+        staffRole: 'Manager',
+      ),
+    );
   }
 }
 
@@ -471,7 +468,7 @@ class _CreateStaffDialogState extends State<CreateStaffDialog> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _gender,
+                initialValue: _gender,
                 decoration: const InputDecoration(labelText: 'Giới tính'),
                 items: const [
                   DropdownMenuItem(value: 'Nam', child: Text('Nam')),

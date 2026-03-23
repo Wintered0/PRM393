@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../services/firestore_service.dart';
 
 class CreateWorkScheduleScreen extends StatefulWidget {
   const CreateWorkScheduleScreen({super.key});
@@ -10,7 +9,7 @@ class CreateWorkScheduleScreen extends StatefulWidget {
 }
 
 class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  
   
   // Form fields
   String? _selectedPosition;
@@ -69,7 +68,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải danh sách nhân viên: $e')),
+          SnackBar(content: Text('Lá»—i táº£i danh sÃ¡ch nhÃ¢n viÃªn: $e')),
         );
       }
     }
@@ -78,7 +77,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
   Future<void> _saveSchedule() async {
     if (_selectedPosition == null || _selectedStaffName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng chọn vị trí và nhân viên')),
+        const SnackBar(content: Text('Vui lÃ²ng chá»n vá»‹ trÃ­ vÃ  nhÃ¢n viÃªn')),
       );
       return;
     }
@@ -97,7 +96,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
       if (existingQuery.docs.isNotEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nhân viên đã được phân ca này rồi!')),
+            const SnackBar(content: Text('NhÃ¢n viÃªn Ä‘Ã£ Ä‘Æ°á»£c phÃ¢n ca nÃ y rá»“i!')),
           );
           setState(() => _isLoading = false);
         }
@@ -114,7 +113,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
       if (dayShiftsQuery.docs.length >= 2) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nhân viên đã được phân tối đa 2 ca trong ngày!')),
+            const SnackBar(content: Text('NhÃ¢n viÃªn Ä‘Ã£ Ä‘Æ°á»£c phÃ¢n tá»‘i Ä‘a 2 ca trong ngÃ y!')),
           );
           setState(() => _isLoading = false);
         }
@@ -146,7 +145,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
       if ((roleCount[currentRole] ?? 0) >= 1) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Ca $_selectedShift đã đủ $_selectedPosition!')),
+            SnackBar(content: Text('Ca $_selectedShift Ä‘Ã£ Ä‘á»§ $_selectedPosition!')),
           );
           setState(() => _isLoading = false);
         }
@@ -172,14 +171,14 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lưu lịch thành công!')),
+          const SnackBar(content: Text('LÆ°u lá»‹ch thÃ nh cÃ´ng!')),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi lưu lịch: $e')),
+          SnackBar(content: Text('Lá»—i lÆ°u lá»‹ch: $e')),
         );
       }
     } finally {
@@ -191,7 +190,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tạo lịch làm việc'),
+        title: const Text('Táº¡o lá»‹ch lÃ m viá»‡c'),
         backgroundColor: Colors.brown,
         foregroundColor: Colors.white,
       ),
@@ -202,17 +201,17 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
           children: [
             // BR-01: Position (Role) Selection
             const Text(
-              'Vị trí (Role) *',
+              'Vá»‹ trÃ­ (Role) *',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _selectedPosition,
+              initialValue: _selectedPosition,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              hint: const Text('Chọn vị trí'),
+              hint: const Text('Chá»n vá»‹ trÃ­'),
               items: _positions.map((pos) => DropdownMenuItem(
                 value: pos,
                 child: Text(pos),
@@ -231,21 +230,21 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
 
             // Full Name (Staff) Selection
             const Text(
-              'Nhân viên *',
+              'NhÃ¢n viÃªn *',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _selectedStaffName,
+              initialValue: _selectedStaffName,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               hint: _isLoading 
-                  ? const Text('Đang tải...')
+                  ? const Text('Äang táº£i...')
                   : _staffList.isEmpty 
-                      ? const Text('Không có nhân viên')
-                      : const Text('Chọn nhân viên'),
+                      ? const Text('KhÃ´ng cÃ³ nhÃ¢n viÃªn')
+                      : const Text('Chá»n nhÃ¢n viÃªn'),
               items: _staffList.isEmpty 
                   ? []
                   : _staffList.map((staff) => DropdownMenuItem(
@@ -260,7 +259,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
 
             // Date Picker
             const Text(
-              'Ngày làm việc *',
+              'NgÃ y lÃ m viá»‡c *',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -298,12 +297,12 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
 
             // Working Shift Selection
             const Text(
-              'Ca làm việc *',
+              'Ca lÃ m viá»‡c *',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _selectedShift,
+              initialValue: _selectedShift,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -329,13 +328,13 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Quy tắc:',
+                    'Quy táº¯c:',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 4),
-                  Text('• Mỗi ca chỉ có 1 Manager, 1 Cashier, 1 Warehouse', style: TextStyle(fontSize: 12)),
-                  Text('• Nhân viên max 2 ca/ngày', style: TextStyle(fontSize: 12)),
-                  Text('• Không trùng ca đã phân', style: TextStyle(fontSize: 12)),
+                  Text('â€¢ Má»—i ca chá»‰ cÃ³ 1 Manager, 1 Cashier, 1 Warehouse', style: TextStyle(fontSize: 12)),
+                  Text('â€¢ NhÃ¢n viÃªn max 2 ca/ngÃ y', style: TextStyle(fontSize: 12)),
+                  Text('â€¢ KhÃ´ng trÃ¹ng ca Ä‘Ã£ phÃ¢n', style: TextStyle(fontSize: 12)),
                 ],
               ),
             ),
@@ -353,7 +352,7 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
                 ),
                 child: _isLoading 
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Lưu lịch', style: TextStyle(fontSize: 16)),
+                    : const Text('LÆ°u lá»‹ch', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -362,3 +361,4 @@ class _CreateWorkScheduleScreenState extends State<CreateWorkScheduleScreen> {
     );
   }
 }
+

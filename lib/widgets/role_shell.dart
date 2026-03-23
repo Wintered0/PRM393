@@ -4,15 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/attendance/checkin_checkout_screen.dart';
-import '../screens/customer/menu_screen.dart';
-import '../screens/customer/order_history_screen.dart';
-import '../screens/cashier/voucher_screen.dart';
 import '../screens/customer/my_vouchers_screen.dart';
-import '../screens/cashier/pending_orders_screen.dart';
-import '../screens/cashier/order_history_staff_screen.dart';
-import '../screens/cashier/inventory_status_screen.dart';
-import '../screens/manager/product_management_screen.dart';
-import '../screens/manager/voucher_management_screen.dart';
 import '../screens/manager/attendance_tracking_screen.dart';
 import '../screens/manager/order_list_screen.dart';
 import '../screens/manager/approve_inbound_order_screen.dart';
@@ -20,18 +12,14 @@ import '../screens/manager/approve_outbound_order_screen.dart';
 import '../screens/manager/work_schedule_screen.dart';
 import '../screens/manager/create_work_schedule_screen.dart';
 import '../screens/warehouse_staff/inventory_tracking_screen.dart';
-import '../screens/warehouse_staff/create_inbound_order_screen.dart';
-import '../screens/warehouse_staff/create_outbound_order_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/admin/customer_accounts_admin_screen.dart';
+import '../screens/admin/cashier_accounts_screen.dart';
 import '../screens/manager/customer_accounts_screen.dart';
 import '../screens/admin/manager_accounts_screen.dart';
 import '../screens/admin/system_audit_logs_screen.dart';
 import '../screens/admin/warehouse_staff_accounts_screen.dart';
-import '../screens/attendance/checkin_checkout_screen.dart';
-import '../screens/manager/attendance_tracking_screen.dart';
 import '../screens/manager/manage_staff_screen.dart';
-import '../screens/profile/profile_screen.dart';
 import 'feedback_overlay.dart';
 
 class RoleShell extends StatelessWidget {
@@ -46,6 +34,25 @@ class RoleShell extends StatelessWidget {
   final bool showCashierAccounts;
   final bool showCustomerAccounts;
   final bool showSystemAuditLogs;
+  final bool showHome;
+  final bool showMenu;
+  final bool showVoucher;
+  final bool showMyVouchers;
+  final bool showPendingOrders;
+  final bool showOrderHistoryStaff;
+  final bool showProductManagement;
+  final bool showVoucherManagement;
+  final bool showWorkSchedule;
+  final bool showCreateWorkSchedule;
+  final bool showOrderList;
+  final bool showAttendanceTracking;
+  final bool showInventoryTracking;
+  final bool showApproveInboundOrder;
+  final bool showApproveOutboundOrder;
+  final bool showCreateInboundOrder;
+  final bool showCreateOutboundOrder;
+  final bool showProfile;
+  final bool showStaffAccounts;
   final bool canToggleStaff; // Admin only: can toggle staff accounts
   final bool canCreateStaff; // Admin only: can create staff accounts
   final Widget body;
@@ -63,6 +70,25 @@ class RoleShell extends StatelessWidget {
     this.showCashierAccounts = false,
     this.showCustomerAccounts = false,
     this.showSystemAuditLogs = false,
+    this.showHome = false,
+    this.showMenu = false,
+    this.showVoucher = false,
+    this.showMyVouchers = false,
+    this.showPendingOrders = false,
+    this.showOrderHistoryStaff = false,
+    this.showProductManagement = false,
+    this.showVoucherManagement = false,
+    this.showWorkSchedule = false,
+    this.showCreateWorkSchedule = false,
+    this.showOrderList = false,
+    this.showAttendanceTracking = false,
+    this.showInventoryTracking = false,
+    this.showApproveInboundOrder = false,
+    this.showApproveOutboundOrder = false,
+    this.showCreateInboundOrder = false,
+    this.showCreateOutboundOrder = false,
+    this.showProfile = false,
+    this.showStaffAccounts = false,
     this.canToggleStaff = false,
     this.canCreateStaff = false,
     required this.body,
@@ -396,6 +422,7 @@ class RoleShell extends StatelessWidget {
                           await _navigateOrToast(context, '');
                         },
                       ),
+                    ),
                     if (showMyVouchers)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
@@ -425,7 +452,6 @@ class RoleShell extends StatelessWidget {
                           await _navigateOrToast(context, '');
                         },
                       ),
-                    ),
                   ],
                   if (roleKey == 'admin') ...[
                     if (showManagerAccounts)
@@ -528,19 +554,19 @@ class RoleShell extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.event_note_outlined),
                         title: const Text('L\u1ecbch l\u00e0m vi\u1ec7c'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          final u = liveData ?? userData;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
+                      onTap: () {
+                        Navigator.pop(context);
+                        final u = liveData ?? userData;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
                               builder: (_) => AttendanceTrackingScreen(
                                 userId: userId,
-                                userData: liveData ?? userData,
+                                userData: u,
                               ),
                             ),
-                          );
-                        },
+                        );
+                      },
                       ),
                     if (showCustomerAccounts || showStaffAccounts)
                       ExpansionTile(

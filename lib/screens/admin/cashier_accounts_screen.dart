@@ -409,7 +409,7 @@ class _CreateStaffDialogState extends State<CreateStaffDialog> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _gender,
+                initialValue: _gender,
                 decoration: const InputDecoration(labelText: 'Giới tính'),
                 items: const [
                   DropdownMenuItem(value: 'Nam', child: Text('Nam')),
