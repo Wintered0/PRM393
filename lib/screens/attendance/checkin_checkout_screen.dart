@@ -69,6 +69,7 @@ class _CheckInCheckOutScreenState extends State<CheckInCheckOutScreen> {
     return (widget.userData['address'] as String? ?? '-').trim();
   }
 
+  // Thêm comment để commit nè!!!
   String _formatClock(DateTime dt) {
     final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
     final minute = dt.minute.toString().padLeft(2, '0');
